@@ -1,0 +1,1524 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="TAP ONE facilite le dépôt d'avis Google grâce à une carte NFC simple, rapide et prête à l'emploi.">
+  <meta property="og:title" content="TAP ONE — La carte NFC pour vos avis Google">
+  <meta property="og:description" content="Transformez un client satisfait en avis Google en quelques secondes. Sans application, sans abonnement.">
+  <meta property="og:type" content="website">
+  <title>TAP ONE — La carte NFC pour vos avis Google</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-size='30' font-family='Arial' font-weight='700' fill='white'%3ET%3C/text%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f6f6f6;
+      --ink: #0a0a0a;
+      --muted: #666666;
+      --line: #e6e6e6;
+      --blue: #0c39c7;
+      --blue-dark: #082a99;
+      --blue-soft: #eef3ff;
+      --yellow: #f4b400;
+      --radius: 26px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+
+    .wrap {
+      width: min(calc(100% - 40px), var(--max));
+      margin-inline: auto;
+    }
+
+    .nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 50;
+      background: rgba(255,255,255,.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(0,0,0,.06);
+    }
+
+    .nav-inner {
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-mark {
+      flex: none;
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+    }
+    .brand-mark svg { width: 100%; height: 100%; }
+    .brand-text {
+      display: inline-flex;
+      flex-direction: column;
+      line-height: .92;
+      letter-spacing: -.045em;
+      font-size: 26px;
+      font-weight: 800;
+    }
+    .brand-text small {
+      margin-top: 7px;
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .2s ease, opacity .2s ease, background .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-dark { background: #000; color: #fff; }
+    .btn-light { background: #fff; color: #000; border: 1px solid var(--line); }
+
+    .hero {
+      min-height: 100svh;
+      padding-top: 96px;
+      display: grid;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.02fr .98fr;
+      align-items: center;
+      gap: 28px;
+      min-height: calc(100svh - 96px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+
+    h1 {
+      margin: 24px 0 20px;
+      font-size: clamp(44px, 5vw, 72px);
+      line-height: .98;
+      letter-spacing: -.065em;
+      max-width: 760px;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 580px;
+      font-size: clamp(17px, 1.55vw, 21px);
+      line-height: 1.55;
+      color: #353535;
+    }
+
+    .hero-actions {
+      margin-top: 30px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .visual-stage {
+      min-height: 590px;
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .card-photo {
+      width: min(500px, 88%);
+      position: relative;
+      z-index: 2;
+      background: transparent;
+      transform-origin: 50% 50%;
+      transform-style: preserve-3d;
+      filter: drop-shadow(0 26px 30px rgba(10, 20, 60, .22));
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .card-graphic .tapone-card-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+    .product-card-graphic {
+      width: min(320px, 100%);
+      margin-inline: auto;
+      filter: drop-shadow(0 18px 22px rgba(10, 20, 60, .18));
+    }
+    .product-card-graphic .tapone-card-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    .phone {
+      position: absolute;
+      z-index: 5;
+      left: 16%;
+      bottom: -15%;
+      width: 220px;
+      height: 448px;
+      border: 9px solid #121212;
+      border-radius: 44px;
+      background: #fff;
+      box-shadow: 0 28px 70px rgba(0,0,0,.25);
+      padding: 46px 18px 20px;
+      opacity: 0;
+      transform: translate(-90px, 50px) rotate(-8deg) scale(.92);
+      pointer-events: none;
+    }
+
+    .phone::before {
+      content: "";
+      width: 86px;
+      height: 23px;
+      border-radius: 999px;
+      background: #111;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .phone-title {
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.25;
+      text-align: center;
+      margin: 12px 0 22px;
+    }
+    .stars {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      font-size: 27px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .stars span,
+    .step-stars span {
+      color: #d7d7d7;
+      transition: color .25s ease, transform .25s ease;
+    }
+    .stars span.is-on,
+    .step-stars span.is-on {
+      color: var(--yellow);
+      transform: translateY(-1px) scale(1.04);
+    }
+    .step-stars {
+      display: flex;
+      gap: 6px;
+      margin-top: 24px;
+      font-size: 28px;
+    }
+    .review-box {
+      height: 130px;
+      margin: 22px 0;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      padding: 14px;
+      color: #999;
+      font-size: 12px;
+    }
+    .publish {
+      width: 100%;
+      background: var(--blue);
+      color: #fff;
+      border: 0;
+      border-radius: 12px;
+      padding: 13px;
+      font-weight: 800;
+    }
+
+    .tap-pulse {
+      position: absolute;
+      z-index: 3;
+      width: 86px;
+      height: 86px;
+      border-radius: 50%;
+      border: 2px solid rgba(12, 57, 199, .35);
+      left: 55%;
+      bottom: 32%;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .scroll-cue {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    section { padding: 92px 0; }
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 28px;
+      margin-bottom: 42px;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(34px, 4vw, 58px);
+      letter-spacing: -.045em;
+      line-height: 1;
+    }
+    .section-head p {
+      margin: 0;
+      max-width: 530px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .pricing {
+      background: var(--surface);
+      padding-top: 96px;
+      padding-bottom: 96px;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .price-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 34px;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .badge {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: #000;
+      color: #fff;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .price-name { font-weight: 800; font-size: 20px; }
+    .price {
+      margin: 25px 0 12px;
+      font-size: clamp(54px, 5vw, 74px);
+      font-weight: 800;
+      letter-spacing: -.055em;
+    }
+    .price-note {
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 26px;
+    }
+
+    .price-card {
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+    .price-card.featured {
+      border-color: #000;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .price-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,.08);
+      }
+    }
+
+    /* Bloc de réassurance : sobre, sans bandeau, aligné sur l'identité noir/blanc */
+    .reassurance-bar {
+      list-style: none;
+      margin: 34px 0 0;
+      padding: 22px 26px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px 0;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+    }
+    .reassurance-bar li {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #3a3a3a;
+      padding: 0 18px;
+      border-right: 1px solid var(--line);
+    }
+    .reassurance-bar li:last-child { border-right: 0; }
+    .reassurance-bar li svg {
+      width: 15px; height: 15px;
+      flex: none;
+      fill: none;
+      stroke: #000;
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .reassurance-bar li.is-key {
+      font-weight: 800;
+      color: #000;
+    }
+    .reassurance-bar li.is-key svg { stroke: var(--blue); }
+    .reassurance-bar .asterisk-note {
+      cursor: pointer;
+      background: none;
+      border: 0;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      text-decoration: underline dotted;
+      text-underline-offset: 3px;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .step {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 30px;
+      min-height: 280px;
+    }
+    .step-num {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: #000; color: #fff;
+      font-size: 13px; font-weight: 800;
+    }
+    .step h3 { margin: 56px 0 10px; font-size: 24px; }
+    .step p { margin: 0; color: var(--muted); line-height: 1.6; }
+
+    .problem {
+      background: #000;
+      color: #fff;
+    }
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      align-items: center;
+    }
+    .problem h2 {
+      font-size: clamp(44px, 5vw, 74px);
+      letter-spacing: -.055em;
+      line-height: .98;
+      margin: 0;
+    }
+    .problem p {
+      font-size: clamp(18px, 1.6vw, 22px);
+      line-height: 1.65;
+      color: #cfcfcf;
+      margin: 0;
+    }
+    .problem strong { color: #fff; }
+
+    .benefits {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .benefit {
+      padding: 30px;
+      border-right: 1px solid var(--line);
+      min-height: 220px;
+    }
+    .benefit:last-child { border-right: 0; }
+    .benefit-icon { width: 40px; height: 40px; }
+    .benefit-icon svg { width: 100%; height: 100%; fill: none; stroke: #000; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .benefit h3 { margin: 48px 0 8px; }
+    .benefit p { margin: 0; color: var(--muted); line-height: 1.55; font-size: 14px; }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 22px;
+    }
+    .product-panel, .guarantee-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 34px;
+    }
+    .product-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+    .product-panel ul {
+      list-style: none;
+      padding: 0; margin: 24px 0 0;
+      display: grid; gap: 14px;
+    }
+    .product-panel li::before {
+      content: "✓";
+      display: inline-grid;
+      place-items: center;
+      width: 20px; height: 20px;
+      border: 1px solid #000;
+      border-radius: 50%;
+      margin-right: 9px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .product-panel img {
+      border-radius: 22px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.12);
+    }
+    .guarantee-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 420px;
+    }
+    .shield { width: 72px; height: 72px; }
+    .shield svg { width: 100%; height: 100%; fill: none; stroke: #000; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .guarantee-panel h3 { font-size: 38px; margin: 18px 0 12px; letter-spacing: -.04em; }
+    .guarantee-panel p { color: var(--muted); line-height: 1.65; }
+    .link-quiet {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+      background: none;
+      border: 0;
+      padding: 0;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      color: #000;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+
+    dialog.warranty-modal {
+      border: 0;
+      border-radius: 22px;
+      padding: 0;
+      max-width: 520px;
+      width: min(92vw, 520px);
+      box-shadow: 0 30px 80px rgba(0,0,0,.25);
+    }
+    dialog.warranty-modal::backdrop {
+      background: rgba(10,10,10,.45);
+      backdrop-filter: blur(2px);
+    }
+    .warranty-modal-inner { padding: 34px; }
+    .warranty-modal-inner h3 {
+      margin: 0 0 14px;
+      font-size: 24px;
+      letter-spacing: -.03em;
+    }
+    .warranty-modal-inner p {
+      color: var(--muted);
+      line-height: 1.65;
+      margin: 0 0 14px;
+    }
+    .warranty-modal-inner p:last-of-type { margin-bottom: 0; }
+    .warranty-close {
+      margin-top: 22px;
+      width: 100%;
+    }
+
+    .faq-list {
+      display: grid;
+      gap: 12px;
+      max-width: 900px;
+      margin-inline: auto;
+    }
+    details {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px 22px;
+      background: #fff;
+      transition: border-color .2s ease;
+    }
+    details[open] { border-color: #ccc; }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .faq-chev {
+      flex: none;
+      width: 20px; height: 20px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      transition: transform .25s ease;
+    }
+    .faq-chev svg { width: 10px; height: 10px; fill: none; stroke: #000; stroke-width: 2.4; stroke-linecap: round; }
+    details[open] .faq-chev { transform: rotate(45deg); }
+    details p { color: var(--muted); line-height: 1.6; margin: 12px 0 0; }
+
+    .final-cta {
+      background: var(--surface);
+      text-align: center;
+    }
+    .final-cta h2 {
+      max-width: 840px;
+      margin: 0 auto 18px;
+      font-size: clamp(42px, 5vw, 72px);
+      letter-spacing: -.055em;
+      line-height: 1;
+    }
+    .final-cta p { color: var(--muted); margin-bottom: 28px; }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 30px 0 42px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .hero-grid, .problem-grid, .product-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero {
+        min-height: auto;
+        padding-top: 110px;
+      }
+      .hero-grid { min-height: auto; }
+      .visual-stage { min-height: 570px; }
+      .pricing-grid, .steps-grid { grid-template-columns: 1fr; }
+      .benefits { grid-template-columns: 1fr 1fr; }
+      .benefit:nth-child(2) { border-right: 0; }
+      .benefit:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .product-panel { grid-template-columns: 1fr; }
+      .scroll-cue { display:none; }
+      .reassurance-bar {
+        border-radius: 22px;
+        justify-content: flex-start;
+      }
+      .reassurance-bar li {
+        border-right: 0;
+        width: 50%;
+        padding: 6px 10px;
+      }
+      /* Tablette : léger resserrement, sans changer la logique du desktop */
+      section { padding: 80px 0; }
+      .section-head h2 { font-size: clamp(30px, 4.4vw, 52px); }
+    }
+
+    /* ===================================================================
+       Téléphone : même site, même structure, même animations — juste une
+       échelle plus proche du rendu desktop (titres, cartes, espacements
+       réduits intelligemment). Aucune règle en dehors de cette media query
+       n'est modifiée : le rendu ordinateur reste strictement identique.
+       =================================================================== */
+    @media (max-width: 600px) {
+      html { overflow-x: hidden; }
+      body { overflow-x: hidden; }
+      .wrap { width: min(calc(100% - 24px), var(--max)); }
+
+      /* Header : logo compact, hauteur inchangée */
+      .nav-inner { height: 66px; }
+      .brand { gap: 8px; }
+      .brand-mark { width: 27px; height: 27px; }
+      .brand-text { font-size: 20px; }
+      .brand-text small { font-size: 7px; margin-top: 5px; }
+      .nav .btn { padding: 10px 13px; font-size: 12px; }
+
+      /* Boutons : cible tactile confortable, taille sobre */
+      .btn { padding: 13px 18px; font-size: 14.5px; }
+
+      /* Hero */
+      .hero { padding-top: 100px; }
+      .hero-grid { gap: 0; }
+      .eyebrow { font-size: 11px; padding: 7px 11px; }
+      h1 { margin: 18px 0 14px; font-size: clamp(32px, 9vw, 42px); letter-spacing: -.04em; }
+      .lead { font-size: 15.5px; }
+      .hero-actions { margin-top: 22px; gap: 10px; }
+      .visual-stage { min-height: 400px; }
+      .card-photo { width: 88%; border-radius: 24px; }
+      .phone {
+        width: 176px; height: 360px;
+        border-width: 7px; border-radius: 36px;
+        padding: 38px 13px 15px;
+        left: -2%;
+      }
+      .phone-title { font-size: 13px; }
+      .stars { font-size: 21px; letter-spacing: 1px; }
+      .review-box { height: 95px; margin: 15px 0; }
+
+      /* Rythme général des sections : plus compact, plus proche du desktop */
+      section { padding: 60px 0; }
+      .section-head { align-items: start; flex-direction: column; gap: 10px; margin-bottom: 30px; }
+      .section-head h2 { font-size: clamp(26px, 7.5vw, 34px); }
+      .section-head p { font-size: 14.5px; }
+
+      /* Tarifs */
+      .pricing { padding-top: 52px; padding-bottom: 52px; }
+      .pricing-grid { gap: 14px; }
+      .price-card { min-height: 0; padding: 22px; }
+      .price-name { font-size: 16px; }
+      .price { font-size: clamp(38px, 13vw, 48px); margin: 16px 0 8px; }
+      .price-note { font-size: 14px; margin-bottom: 0; }
+      .badge { top: 14px; right: 14px; font-size: 9px; padding: 6px 9px; }
+      .reassurance-bar { padding: 14px; margin-top: 22px; }
+      .reassurance-bar li { width: 100%; font-size: 13px; padding: 5px 10px; }
+
+      /* Étapes */
+      .steps-grid { gap: 12px; }
+      .step { padding: 20px; min-height: 0; }
+      .step-num { width: 28px; height: 28px; font-size: 12px; }
+      .step h3 { margin: 26px 0 6px; font-size: 19px; }
+      .step p { font-size: 14.5px; }
+      .step-stars { font-size: 22px; margin-top: 18px; }
+
+      /* Bloc "problème" */
+      .problem-grid { gap: 20px; }
+      .problem h2 { font-size: clamp(28px, 9vw, 36px); }
+      .problem p { font-size: 15.5px; }
+
+      /* Avantages */
+      .benefits { grid-template-columns: 1fr; }
+      .benefit { border-right: 0 !important; border-bottom: 1px solid var(--line); padding: 20px; min-height: 0; }
+      .benefit:last-child { border-bottom: 0; }
+      .benefit-icon { width: 32px; height: 32px; }
+      .benefit h3 { margin: 26px 0 6px; font-size: 16px; }
+      .benefit p { font-size: 13.5px; }
+
+      /* Produit / Garantie */
+      .product-panel, .guarantee-panel { padding: 22px; }
+      .guarantee-panel { min-height: 0; gap: 22px; }
+      .guarantee-panel h3 { font-size: 27px; margin: 14px 0 10px; }
+      .guarantee-panel p { font-size: 14.5px; }
+      .shield { width: 54px; height: 54px; }
+      .product-panel h2 { font-size: 32px !important; }
+      .product-panel ul { margin-top: 18px; gap: 11px; }
+
+      /* FAQ */
+      .faq-list { gap: 10px; }
+      details { padding: 16px 18px; }
+      summary { font-size: 14.5px; gap: 12px; }
+      details p { font-size: 14px; }
+      .warranty-modal-inner { padding: 24px; }
+      .warranty-modal-inner h3 { font-size: 20px; }
+      .warranty-modal-inner p { font-size: 14px; }
+
+      /* CTA final */
+      .final-cta h2 { font-size: clamp(28px, 9vw, 36px); }
+      .final-cta p { font-size: 14.5px; }
+
+      footer { font-size: 12.5px; }
+    }
+
+    /* ===================================================================
+       "Façon PC" sur téléphone : uniquement pour le contenu à l'intérieur
+       de .pc-scale-wrap (Tarifs → footer). Le hero, lui, reste régi par
+       les media queries normales ci-dessus (donc affiché en taille native,
+       lisible directement, sans besoin de zoomer).
+       .pc-scale-wrap force une largeur de mise en page desktop (1180px)
+       puis la réduit avec `zoom` pour qu'elle tienne à l'écran — d'où le
+       besoin de réaffirmer ici, avec une spécificité plus forte, les
+       valeurs desktop déjà définies plus haut (elles seraient sinon
+       écrasées par les media queries mobiles ci-dessus, qui s'appliquent
+       toujours d'après la largeur réelle de l'écran).
+       =================================================================== */
+    @media (max-width: 680px) {
+      .pc-scale-wrap {
+        width: 1180px;
+        max-width: none;
+        zoom: calc(100vw / 1180px);
+      }
+      footer.pc-scale-wrap { font-size: 13px; padding: 30px 0 42px; }
+
+      .pc-scale-wrap .wrap { width: min(calc(100% - 40px), var(--max)); }
+      .pc-scale-wrap .btn { padding: 14px 20px; font-size: 16px; }
+
+      .pc-scale-wrap section { padding: 92px 0; }
+      .pc-scale-wrap .section-head {
+        flex-direction: row;
+        align-items: end;
+        margin-bottom: 42px;
+        gap: 28px;
+      }
+      .pc-scale-wrap .section-head h2 { font-size: clamp(34px, 4vw, 58px); }
+      .pc-scale-wrap .section-head p { font-size: 16px; }
+
+      .pc-scale-wrap .pricing { padding-top: 96px; padding-bottom: 96px; }
+      .pc-scale-wrap .pricing-grid { grid-template-columns: 1fr 1fr; gap: 18px; }
+      .pc-scale-wrap .price-card { min-height: 250px; padding: 34px; }
+      .pc-scale-wrap .price-name { font-size: 20px; }
+      .pc-scale-wrap .price { font-size: clamp(54px, 5vw, 74px); margin: 25px 0 12px; }
+      .pc-scale-wrap .price-note { font-size: 16px; margin-bottom: 26px; }
+      .pc-scale-wrap .badge { top: 18px; right: 18px; font-size: 10px; padding: 7px 10px; }
+
+      .pc-scale-wrap .reassurance-bar {
+        border-radius: 999px;
+        justify-content: center;
+        padding: 22px 26px;
+        margin-top: 34px;
+      }
+      .pc-scale-wrap .reassurance-bar li {
+        border-right: 1px solid var(--line);
+        width: auto;
+        padding: 0 18px;
+        font-size: 13.5px;
+      }
+      .pc-scale-wrap .reassurance-bar li:last-child { border-right: 0; }
+
+      .pc-scale-wrap .steps-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+      .pc-scale-wrap .step { padding: 30px; min-height: 280px; }
+      .pc-scale-wrap .step-num { width: 34px; height: 34px; font-size: 13px; }
+      .pc-scale-wrap .step h3 { margin: 56px 0 10px; font-size: 24px; }
+      .pc-scale-wrap .step p { font-size: 16px; }
+      .pc-scale-wrap .step-stars { font-size: 28px; margin-top: 24px; }
+
+      .pc-scale-wrap .problem-grid { grid-template-columns: 1fr 1fr; gap: 50px; }
+      .pc-scale-wrap .problem h2 { font-size: clamp(44px, 5vw, 74px); }
+      .pc-scale-wrap .problem p { font-size: clamp(18px, 1.6vw, 22px); }
+
+      .pc-scale-wrap .benefits { grid-template-columns: repeat(4, 1fr); }
+      .pc-scale-wrap .benefit {
+        padding: 30px;
+        min-height: 220px;
+        border-right: 1px solid var(--line) !important;
+        border-bottom: 0 !important;
+      }
+      .pc-scale-wrap .benefit:last-child { border-right: 0 !important; }
+      .pc-scale-wrap .benefit-icon { width: 40px; height: 40px; }
+      .pc-scale-wrap .benefit h3 { margin: 48px 0 8px; font-size: 20px; }
+      .pc-scale-wrap .benefit p { font-size: 14px; }
+
+      .pc-scale-wrap .product-panel, .pc-scale-wrap .guarantee-panel { padding: 34px; }
+      .pc-scale-wrap .product-panel { grid-template-columns: 1fr 1fr; }
+      .pc-scale-wrap .guarantee-panel { min-height: 420px; gap: 0; }
+      .pc-scale-wrap .guarantee-panel h3 { font-size: 38px; margin: 18px 0 12px; }
+      .pc-scale-wrap .guarantee-panel p { font-size: 16px; }
+      .pc-scale-wrap .shield { width: 72px; height: 72px; }
+      .pc-scale-wrap .product-panel h2 { font-size: 42px !important; }
+      .pc-scale-wrap .product-panel ul { margin-top: 24px; gap: 14px; }
+
+      .pc-scale-wrap .faq-list { gap: 12px; }
+      .pc-scale-wrap details { padding: 20px 22px; }
+      .pc-scale-wrap summary { font-size: 16px; gap: 16px; }
+      .pc-scale-wrap details p { font-size: 16px; }
+
+      .pc-scale-wrap .final-cta h2 { font-size: clamp(42px, 5vw, 72px); }
+      .pc-scale-wrap .final-cta p { font-size: 16px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a href="#top" class="brand" aria-label="TAP ONE accueil">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 1088 980" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(0,980) scale(0.1,-0.1)" fill="#0a0a0a" stroke="none">
+              <path d="M4440 9620 c-10 -18 -21 -20 -140 -20 -119 0 -130 -2 -140 -20 -9 -17 -21 -20 -80 -20 -59 0 -71 3 -80 20 -7 13 -21 20 -40 20 -19 0 -33 -7 -40 -20 -8 -16 -21 -20 -60 -20 -39 0 -52 -4 -60 -20 -14 -27 -57 -26 -81 3 l-19 22 -19 -22 c-15 -18 -30 -23 -65 -23 -35 0 -48 -4 -56 -20 -8 -16 -21 -20 -60 -20 -39 0 -52 -4 -60 -20 -8 -16 -21 -20 -60 -20 -39 0 -52 -4 -60 -20 -8 -16 -21 -20 -60 -20 -39 0 -52 -4 -60 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -8 -16 -21 -20 -60 -20 -39 0 -52 -4 -60 -20 -8 -16 -21 -20 -60 -20 -39 0 -52 -4 -60 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -7 -12 -21 -20 -38 -20 -19 0 -37 -12 -62 -40 -23 -26 -44 -40 -60 -40 -16 0 -37 -14 -60 -40 -23 -26 -44 -40 -60 -40 -16 0 -37 -14 -60 -40 -22 -25 -44 -40 -59 -40 -15 0 -43 -20 -81 -60 -36 -37 -66 -60 -79 -60 -15 0 -62 -40 -141 -120 -76 -77 -126 -120 -140 -120 -28 0 -280 -252 -280 -281 0 -13 -37 -57 -100 -119 -66 -65 -100 -106 -100 -120 0 -14 -23 -44 -60 -80 -40 -38 -60 -66 -60 -81 0 -15 -15 -37 -40 -59 -26 -23 -40 -44 -40 -60 0 -16 -14 -37 -40 -60 -28 -25 -40 -43 -40 -62 0 -17 -8 -31 -20 -38 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -12 -7 -20 -21 -20 -38 0 -19 -12 -37 -40 -62 -28 -25 -40 -43 -40 -62 0 -17 -8 -31 -20 -38 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -16 -8 -20 -21 -20 -60 0 -39 -4 -52 -20 -60 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -16 -8 -20 -21 -20 -60 0 -39 -4 -52 -20 -60 -16 -8 -20 -21 -20 -60 0 -39 -4 -52 -20 -60 -17 -9 -20 -21 -20 -80 0 -59 -3 -71 -20 -80 -17 -9 -20 -21 -20 -80 0 -59 -3 -71 -20 -80 -17 -9 -20 -21 -20 -80 0 -59 -3 -71 -20 -80 -18 -10 -20 -21 -20 -140 0 -119 -2 -130 -20 -140 -20 -10 -20 -21 -20 -460 0 -439 0 -450 20 -460 18 -10 20 -21 20 -140 0 -119 2 -130 20 -140 18 -9 20 -21 20 -100 0 -79 2 -91 20 -100 17 -9 20 -21 20 -80 0 -59 3 -71 20 -80 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 12 -7 20 -21 20 -38 0 -19 12 -37 40 -62 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 25 -22 40 -44 40 -59 0 -15 20 -43 60 -81 38 -36 60 -66 60 -80 0 -14 28 -49 80 -100 50 -49 80 -86 80 -99 0 -29 412 -441 441 -441 13 0 50 -30 99 -80 51 -52 86 -80 100 -80 14 0 44 -22 80 -60 38 -40 66 -60 81 -60 15 0 37 -15 59 -40 25 -28 43 -40 62 -40 17 0 31 -8 38 -20 7 -12 21 -20 38 -20 19 0 37 -12 62 -40 25 -28 43 -40 62 -40 17 0 31 -8 38 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 8 -16 21 -20 60 -20 39 0 52 -4 60 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 9 -18 21 -20 96 -20 81 0 87 1 115 29 17 18 29 40 29 56 0 18 6 29 20 32 11 3 20 14 20 23 0 10 -9 22 -20 25 -28 9 -28 61 0 70 11 3 20 12 20 18 0 21 -57 67 -84 67 -15 0 -30 8 -36 20 -7 12 -21 20 -37 20 -24 0 -83 51 -83 72 0 16 -30 7 -40 -12 -18 -33 -38 -24 -42 17 -3 35 -6 38 -35 41 -20 2 -37 11 -43 23 -7 11 -21 19 -38 19 -19 0 -37 12 -62 40 -25 28 -43 40 -62 40 -17 0 -31 8 -38 20 -7 13 -21 20 -40 20 -19 0 -33 7 -40 20 -7 13 -21 20 -40 20 -19 0 -33 7 -40 20 -7 13 -21 20 -40 20 -19 0 -33 7 -40 20 -8 16 -21 20 -58 20 -42 0 -51 4 -82 40 -21 24 -44 40 -58 40 -29 0 -162 131 -162 160 0 12 -43 63 -111 132 l-111 112 -18 -24 -18 -24 -91 92 c-57 57 -91 100 -91 113 0 13 -24 44 -60 79 -56 54 -60 61 -60 104 0 35 -4 48 -20 56 -14 8 -20 21 -20 45 0 28 -4 35 -19 35 -10 0 -21 9 -24 20 -3 14 -14 20 -32 20 -33 0 -85 50 -85 82 0 14 -15 36 -40 58 -28 25 -40 43 -40 62 0 17 -8 31 -20 38 -12 7 -20 21 -20 38 0 19 -12 37 -40 62 -28 25 -40 43 -40 62 0 17 -8 31 -20 38 -16 8 -20 21 -20 60 0 39 -4 52 -20 60 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -16 8 -20 21 -20 60 0 39 -4 52 -20 60 -16 8 -20 21 -20 60 0 39 -4 52 -20 60 -16 8 -20 21 -20 60 0 39 -4 52 -20 60 -17 9 -20 21 -20 80 0 59 -3 71 -20 80 -17 9 -20 21 -20 80 0 59 -3 71 -20 80 -18 10 -20 21 -20 120 0 99 -2 110 -20 120 -20 10 -20 21 -20 540 0 519 0 530 20 540 18 10 20 21 20 120 0 99 2 110 20 120 17 9 20 21 20 80 0 59 3 71 20 80 17 9 20 21 20 80 0 59 3 71 20 80 16 8 20 21 20 60 0 39 4 52 20 60 16 8 20 21 20 60 0 39 4 52 20 60 13 7 20 21 20 40 0 19 7 33 20 40 16 8 20 21 20 60 0 39 4 52 20 60 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 12 7 20 21 20 38 0 19 12 37 40 62 28 25 40 43 40 62 0 17 8 31 20 38 12 7 20 21 20 38 0 19 12 37 40 62 25 22 40 44 40 59 0 15 20 43 60 81 38 36 60 66 60 80 0 14 28 49 80 100 50 49 80 86 80 99 0 29 372 401 401 401 13 0 50 30 99 80 51 52 86 80 100 80 14 0 44 22 80 60 41 43 65 60 84 60 15 0 30 8 36 20 7 12 21 20 38 20 19 0 37 12 62 40 25 28 43 40 62 40 17 0 31 8 38 20 7 12 21 20 38 20 19 0 37 12 62 40 25 28 43 40 62 40 17 0 31 8 38 20 7 13 21 20 40 20 19 0 33 7 40 20 7 13 21 20 40 20 19 0 33 7 40 20 8 16 21 20 60 20 39 0 52 4 60 20 7 13 21 20 40 20 19 0 33 7 40 20 8 16 21 20 60 20 39 0 52 4 60 20 7 13 21 20 40 20 19 0 33 7 40 20 9 17 21 20 80 20 59 0 71 3 80 20 9 17 21 20 80 20 59 0 71 3 80 20 9 17 21 20 80 20 59 0 71 3 80 20 10 18 21 20 140 20 119 0 130 2 140 20 10 20 21 20 440 20 419 0 430 0 440 -20 10 -18 21 -20 120 -20 99 0 110 -2 120 -20 9 -18 21 -20 100 -20 79 0 91 -2 100 -20 9 -18 21 -20 100 -20 79 0 91 -2 100 -20 8 -16 21 -20 60 -20 39 0 52 -4 60 -20 8 -16 21 -20 60 -20 39 0 52 -4 60 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 8 -16 21 -20 60 -20 39 0 52 -4 60 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 7 -12 21 -20 38 -20 19 0 37 -12 62 -40 25 -28 43 -40 62 -40 17 0 31 -8 38 -20 7 -12 21 -20 38 -20 19 0 37 -12 62 -40 23 -26 44 -40 60 -40 16 0 37 -14 60 -40 22 -25 44 -40 59 -40 15 0 43 -20 81 -60 35 -36 66 -60 79 -60 30 0 681 -651 681 -681 0 -13 24 -44 60 -79 40 -38 60 -66 60 -81 0 -15 15 -37 40 -59 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 28 -25 40 -43 40 -62 0 -17 8 -31 20 -38 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 17 -9 20 -21 20 -80 0 -59 3 -71 20 -80 18 -9 20 -21 20 -100 0 -79 2 -91 20 -100 19 -10 20 -21 20 -180 0 -159 1 -170 20 -180 19 -10 20 -21 20 -260 0 -239 -1 -250 -20 -260 -19 -10 -20 -21 -20 -180 0 -159 -1 -170 -20 -180 -18 -9 -20 -21 -20 -100 0 -79 -2 -91 -20 -100 -17 -9 -20 -21 -20 -80 0 -59 -3 -71 -20 -80 -17 -9 -20 -21 -20 -80 0 -59 -3 -71 -20 -80 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -16 -8 -20 -21 -20 -60 0 -39 -4 -52 -20 -60 -16 -8 -20 -21 -20 -60 0 -39 -4 -52 -20 -60 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -17 -9 -20 -21 -20 -76 0 -65 0 -65 50 -115 l50 -50 87 3 88 3 3 30 c3 19 18 43 43 66 26 24 39 44 39 62 0 16 8 30 20 37 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 16 8 20 21 20 60 0 39 4 52 20 60 16 8 20 21 20 60 0 39 4 52 20 60 16 8 20 21 20 60 0 39 4 52 20 60 17 9 20 21 20 80 0 59 3 71 20 80 17 9 20 21 20 80 0 59 3 71 20 80 18 10 20 21 20 120 0 99 2 110 20 120 19 10 20 21 20 160 0 139 1 150 20 160 19 10 20 21 20 260 0 239 -1 250 -20 260 -19 10 -20 21 -20 180 0 159 -1 170 -20 180 -18 10 -20 21 -20 120 0 99 -2 110 -20 120 -17 9 -20 21 -20 80 0 59 -3 71 -20 80 -16 8 -20 21 -20 60 0 39 -4 52 -20 60 -17 9 -20 21 -20 80 0 59 -3 71 -20 80 -16 8 -20 21 -20 60 0 39 -4 52 -20 60 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -16 8 -20 21 -20 60 0 39 -4 52 -20 60 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -12 7 -20 21 -20 38 0 19 -12 37 -40 62 -26 23 -40 44 -40 60 0 16 -14 37 -40 60 -26 23 -40 44 -40 60 0 16 -14 37 -40 60 -25 22 -40 44 -40 59 0 15 -20 43 -60 81 -37 36 -60 66 -60 80 0 18 -49 80 -63 80 -12 0 -97 93 -97 106 0 37 59 -7 125 -91 15 -19 15 -19 29 -2 8 11 12 26 9 35 -4 8 -74 83 -156 165 l-149 151 -18 -24 -18 -24 -81 82 c-58 59 -88 82 -106 82 -14 0 -29 8 -35 20 -6 11 -15 20 -20 20 -10 0 -100 88 -100 99 0 4 -18 20 -40 37 -46 33 -49 46 -17 67 l22 15 -52 51 c-29 28 -61 51 -72 51 -11 0 -38 18 -60 40 -29 29 -48 40 -70 40 -18 0 -31 5 -31 13 0 25 -58 69 -87 65 -34 -4 -46 -38 -14 -38 14 0 21 -6 21 -20 0 -13 -7 -20 -19 -20 -10 0 -21 9 -24 20 -4 14 -14 20 -34 20 -20 0 -38 11 -63 40 -22 25 -44 40 -58 40 -35 0 -82 52 -82 89 0 24 -4 31 -19 31 -10 0 -21 9 -24 20 -4 14 -14 20 -35 20 -22 0 -32 -6 -37 -20 -7 -22 -45 -28 -45 -6 0 7 10 20 22 28 27 18 16 38 -22 38 -19 0 -33 -7 -40 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 7 -40 20 -7 13 -21 20 -40 20 -19 0 -33 7 -40 20 -7 13 -21 20 -40 20 -19 0 -33 7 -40 20 -8 16 -21 20 -60 20 -39 0 -52 4 -60 20 -8 16 -21 20 -60 20 -39 0 -52 4 -60 20 -8 14 -21 20 -45 20 -40 0 -48 22 -15 40 40 21 24 40 -35 40 -44 0 -56 4 -65 20 -8 16 -21 20 -60 20 -39 0 -52 4 -60 20 -9 18 -21 20 -100 20 -79 0 -91 2 -100 20 -10 19 -21 20 -160 20 -139 0 -150 -1 -160 -20 -8 -16 -21 -20 -60 -20 -39 0 -52 4 -60 20 -7 13 -21 20 -40 20 -19 0 -33 7 -40 20 -16 30 -95 28 -121 -2 l-19 -23 -19 23 c-14 16 -30 22 -61 22 -31 0 -47 -6 -61 -22 l-19 -23 -19 23 c-24 28 -67 29 -81 2z m2038 -477 c-5 -26 -38 -29 -38 -4 0 15 6 21 21 21 14 0 19 -5 17 -17z m407 -243 c3 -11 13 -20 21 -20 8 0 14 -9 14 -20 0 -27 -24 -25 -55 5 -14 14 -25 32 -25 40 0 22 38 18 45 -5z m168 -125 c29 -26 36 -55 12 -55 -8 0 -26 11 -40 25 -48 49 -24 75 28 30z m-5735 -5712 c-5 -26 -38 -29 -38 -4 0 15 6 21 21 21 14 0 19 -5 17 -17z M7204 8669 c-4 -7 7 -22 26 -37 17 -14 51 -45 73 -68 41 -43 78 -56 92 -34 11 17 -131 150 -159 150 -14 0 -28 -5 -32 -11z M4360 7780 c-10 -18 -21 -20 -140 -20 -119 0 -130 -2 -140 -20 -9 -17 -21 -20 -80 -20 -59 0 -71 -3 -80 -20 -8 -16 -21 -20 -60 -20 -39 0 -52 -4 -60 -20 -8 -16 -21 -20 -60 -20 -39 0 -52 -4 -60 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -6 -12 -21 -20 -36 -20 -19 0 -43 -17 -84 -60 -38 -40 -66 -60 -81 -60 -15 0 -37 -15 -59 -40 -21 -24 -44 -40 -58 -40 -30 0 -362 -330 -362 -361 0 -13 -24 -44 -60 -79 -40 -38 -60 -66 -60 -81 0 -15 -15 -37 -40 -59 -28 -25 -40 -43 -40 -62 0 -17 -8 -31 -20 -38 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -16 -8 -20 -21 -20 -60 0 -39 -4 -52 -20 -60 -16 -8 -20 -21 -20 -60 0 -39 -4 -52 -20 -60 -17 -9 -20 -21 -20 -80 0 -59 -3 -71 -20 -80 -18 -10 -20 -21 -20 -120 0 -99 -2 -110 -20 -120 -19 -10 -20 -21 -20 -160 0 -139 1 -150 20 -160 19 -10 20 -21 20 -160 0 -139 1 -150 20 -160 17 -9 20 -21 20 -80 0 -59 3 -71 20 -80 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 12 -6 20 -21 20 -36 0 -17 21 -45 70 -94 l69 -70 61 0 c60 0 62 1 110 50 34 33 50 57 50 74 0 15 8 30 20 36 13 7 20 21 20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -17 9 -20 21 -20 80 0 59 -3 71 -20 80 -17 9 -20 21 -20 80 0 59 -3 71 -20 80 -19 10 -20 21 -20 300 0 279 1 290 20 300 17 9 20 21 20 80 0 59 3 71 20 80 17 9 20 21 20 80 0 59 3 71 20 80 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 12 6 20 21 20 36 0 19 17 43 60 84 36 35 60 66 60 79 0 29 252 281 281 281 13 0 44 24 79 60 38 40 66 60 81 60 15 0 37 15 59 40 25 28 43 40 62 40 17 0 31 8 38 20 7 13 21 20 40 20 19 0 33 7 40 20 7 13 21 20 40 20 19 0 33 7 40 20 8 16 21 20 60 20 39 0 52 4 60 20 8 16 21 20 60 20 39 0 52 4 60 20 10 18 21 20 120 20 99 0 110 2 120 20 10 19 21 20 260 20 239 0 250 -1 260 -20 9 -17 21 -20 80 -20 59 0 71 -3 80 -20 9 -17 21 -20 80 -20 59 0 71 -3 80 -20 8 -16 21 -20 60 -20 39 0 52 -4 60 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 7 -12 21 -20 38 -20 19 0 37 -12 62 -40 21 -24 44 -40 58 -40 16 0 78 -56 212 -190 134 -134 190 -196 190 -212 0 -14 16 -37 40 -58 28 -25 40 -43 40 -62 0 -17 8 -31 20 -38 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 18 -10 20 -21 20 -120 0 -99 2 -110 20 -120 19 -10 20 -21 20 -200 0 -179 -1 -190 -20 -200 -18 -9 -20 -21 -20 -100 0 -79 -2 -91 -20 -100 -16 -8 -20 -21 -20 -60 0 -39 -4 -52 -20 -60 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -13 -7 -20 -21 -20 -40 0 -19 -7 -33 -20 -40 -17 -9 -20 -21 -20 -76 l0 -65 70 -69 c65 -66 72 -70 114 -70 35 0 48 5 56 19 6 12 23 21 43 23 27 3 32 7 35 33 3 19 18 43 43 66 26 24 39 44 39 62 0 16 8 30 20 37 16 8 20 21 20 60 0 39 4 52 20 60 13 7 20 21 20 40 0 19 7 33 20 40 17 9 20 21 20 80 0 59 3 71 20 80 18 9 20 21 20 100 0 79 2 91 20 100 19 10 20 21 20 280 0 259 -1 270 -20 280 -18 10 -20 21 -20 140 0 119 -2 130 -20 140 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -16 8 -20 21 -20 60 0 39 -4 52 -20 60 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -12 6 -20 21 -20 36 0 26 -48 84 -69 84 -6 0 -11 9 -11 20 0 27 24 25 44 -2 15 -22 16 -22 30 -5 19 24 11 43 -36 90 -21 21 -38 47 -38 58 0 29 -413 439 -442 439 -14 0 -37 16 -58 40 -22 25 -44 40 -59 40 -15 0 -43 20 -81 60 -41 43 -65 60 -84 60 -15 0 -30 8 -36 20 -7 13 -21 20 -40 20 -19 0 -33 7 -40 20 -7 13 -21 20 -40 20 -19 0 -33 7 -40 20 -7 13 -21 20 -40 20 -19 0 -33 7 -40 20 -9 17 -21 20 -80 20 -59 0 -71 3 -80 20 -9 17 -21 20 -80 20 -59 0 -71 3 -80 20 -9 17 -21 20 -80 20 -59 0 -71 3 -80 20 -10 19 -21 20 -280 20 -259 0 -270 -1 -280 -20z m1998 -923 c2 -12 -3 -17 -17 -17 -15 0 -21 6 -21 21 0 25 33 22 38 -4z M4520 6820 c-10 -18 -21 -20 -140 -20 -119 0 -130 -2 -140 -20 -8 -16 -21 -20 -60 -20 -39 0 -52 -4 -60 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -7 -13 -21 -20 -40 -20 -19 0 -33 -7 -40 -20 -6 -12 -21 -20 -36 -20 -19 0 -43 -17 -84 -60 -35 -37 -66 -60 -79 -60 -30 0 -161 -132 -161 -162 0 -14 -16 -37 -40 -58 -26 -23 -40 -44 -40 -60 0 -16 -14 -37 -40 -60 -28 -25 -40 -43 -40 -62 0 -17 -8 -31 -20 -38 -16 -8 -20 -21 -20 -60 0 -39 -4 -52 -20 -60 -16 -8 -20 -21 -20 -60 0 -39 -4 -52 -20 -60 -17 -9 -20 -21 -20 -80 0 -59 -3 -71 -20 -80 -18 -10 -20 -21 -20 -120 0 -99 2 -110 20 -120 18 -9 20 -21 20 -100 0 -79 2 -91 20 -100 13 -7 20 -21 20 -40 0 -19 7 -33 19 -40 12 -6 21 -23 23 -43 l3 -32 92 -3 c83 -2 93 -1 102 17 7 12 24 21 44 23 28 3 32 7 35 35 2 20 11 37 23 43 29 16 28 144 -1 160 -19 10 -20 21 -20 200 0 179 1 190 20 200 16 8 20 21 20 60 0 39 4 52 20 60 13 7 20 21 20 40 0 19 7 33 20 40 12 6 20 21 20 36 0 19 17 43 59 83 41 40 60 66 63 87 2 24 8 30 32 32 21 3 47 22 87 63 40 42 64 59 83 59 15 0 30 8 36 20 7 13 21 20 40 20 19 0 33 7 40 20 7 13 21 20 40 20 19 0 33 7 40 20 10 19 21 20 280 20 259 0 270 -1 280 -20 8 -16 21 -20 60 -20 39 0 52 -4 60 -20 7 -12 21 -20 38 -20 19 0 37 -12 62 -40 21 -24 44 -40 58 -40 31 0 202 -171 202 -202 0 -14 16 -37 40 -58 28 -25 40 -43 40 -62 0 -17 8 -31 20 -38 16 -8 20 -21 20 -60 0 -39 4 -52 20 -60 18 -9 20 -21 20 -100 0 -79 2 -91 20 -100 13 -7 20 -21 20 -40 0 -19 -7 -33 -20 -40 -18 -10 -20 -21 -20 -116 l0 -105 50 -49 c33 -34 57 -50 74 -50 15 0 30 -8 36 -20 7 -13 21 -20 40 -20 19 0 33 7 40 20 6 12 21 20 36 20 15 0 38 12 55 29 26 27 29 36 29 95 0 55 3 67 20 76 19 10 20 21 20 200 0 179 -1 190 -20 200 -17 9 -20 21 -20 80 0 59 -3 71 -20 80 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -13 7 -20 21 -20 40 0 19 -7 33 -20 40 -17 9 -20 21 -20 75 l0 65 -111 112 -111 112 -19 -25 -19 -24 -38 43 c-25 27 -48 42 -63 42 -15 0 -37 14 -59 40 -22 25 -44 40 -59 40 -15 0 -43 20 -81 60 -54 56 -61 60 -104 60 -35 0 -48 4 -56 20 -9 17 -21 20 -80 20 -59 0 -71 3 -80 20 -10 18 -21 20 -120 20 -99 0 -110 -2 -120 -20z M4440 5820 c-6 -12 -21 -20 -36 -20 -35 0 -204 -169 -204 -204 0 -15 -8 -30 -20 -36 -20 -11 -20 -21 -20 -1465 0 -1096 -3 -1455 -12 -1455 -21 0 -108 98 -108 122 0 14 -16 37 -40 58 -28 25 -40 43 -40 62 0 17 -8 31 -20 38 -16 8 -20 21 -20 60 0 39 -4 52 -20 60 -12 6 -20 21 -20 36 0 35 -209 244 -244 244 -15 0 -30 8 -36 20 -7 13 -21 20 -40 20 -19 0 -33 7 -40 20 -9 18 -21 20 -98 20 l-87 0 -35 -40 c-21 -24 -44 -40 -58 -40 -15 0 -52 -30 -112 -90 -87 -86 -90 -91 -90 -134 0 -35 -5 -48 -20 -56 -18 -9 -20 -21 -20 -100 0 -79 2 -91 20 -100 13 -7 20 -21 20 -40 0 -19 7 -33 20 -40 12 -7 20 -21 20 -38 0 -19 12 -37 40 -62 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 28 -25 40 -43 40 -62 0 -17 8 -31 20 -38 12 -7 20 -21 20 -38 0 -19 12 -37 40 -62 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 26 -23 40 -44 40 -60 0 -16 14 -37 40 -60 28 -25 40 -43 40 -62 0 -17 8 -31 20 -38 12 -7 20 -21 20 -38 0 -19 12 -37 40 -62 25 -22 40 -44 40 -59 0 -15 20 -43 60 -81 37 -35 60 -66 60 -79 0 -29 172 -201 201 -201 13 0 44 -23 79 -60 41 -43 65 -60 84 -60 15 0 30 -8 36 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 7 -13 21 -20 40 -20 19 0 33 -7 40 -20 8 -16 21 -20 60 -20 39 0 52 -4 60 -20 9 -17 21 -20 80 -20 59 0 71 -3 80 -20 10 -19 21 -20 300 -20 279 0 290 1 300 20 9 17 21 20 80 20 59 0 71 3 80 20 9 17 21 20 80 20 59 0 71 3 80 20 7 13 21 20 40 20 19 0 33 7 40 20 7 13 21 20 40 20 19 0 33 7 40 20 6 12 21 20 36 20 19 0 43 17 84 60 35 36 66 60 79 60 29 0 241 212 241 241 0 13 24 44 60 79 43 41 60 65 60 84 0 15 8 30 20 36 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 13 7 20 21 20 40 0 19 7 33 20 40 16 8 20 21 20 60 0 39 4 52 20 60 17 9 20 21 20 80 0 59 3 71 20 80 20 11 20 21 20 620 0 599 0 609 20 620 13 7 20 21 20 40 0 19 -7 33 -20 40 -19 10 -20 21 -20 239 0 226 0 229 23 245 l22 16 -22 16 c-18 13 -23 26 -23 65 0 39 -4 49 -20 54 -11 3 -20 13 -20 20 0 8 9 19 20 25 20 11 28 40 10 40 -5 0 -36 27 -69 60 -42 42 -68 60 -85 60 -15 0 -30 8 -36 20 -7 13 -21 20 -40 20 -19 0 -33 -7 -40 -20 -9 -18 -21 -20 -100 -20 -79 0 -91 -2 -100 -20 -6 -12 -21 -20 -36 -20 -32 0 -84 -50 -84 -81 0 -13 -16 -37 -40 -59 l-39 -36 -3 -90 c-2 -71 -6 -89 -18 -89 -13 0 -15 25 -18 152 -2 140 -4 153 -22 163 -17 9 -20 21 -20 76 0 65 0 65 -50 114 -33 34 -57 50 -74 50 -15 0 -30 8 -36 20 -10 18 -21 20 -120 20 -99 0 -110 -2 -120 -20 -6 -12 -21 -20 -36 -20 -18 0 -49 -25 -114 -89 l-89 -90 -3 -108 c-2 -88 -6 -108 -18 -108 -12 0 -15 23 -18 132 -2 120 -4 134 -22 143 -17 9 -20 21 -20 80 0 59 -3 71 -20 80 -12 6 -20 21 -20 36 0 17 -16 41 -50 74 l-49 50 -165 0 c-155 0 -166 -1 -176 -20 -6 -12 -21 -20 -36 -20 -34 0 -124 -90 -124 -124 0 -15 -8 -30 -20 -36 -18 -10 -20 -23 -22 -203 -3 -163 -5 -192 -18 -192 -13 0 -15 131 -18 1112 -2 1100 -2 1112 -22 1123 -12 6 -20 21 -20 36 0 33 -51 84 -84 84 -15 0 -30 8 -36 20 -7 13 -21 20 -40 20 -19 0 -33 7 -40 20 -10 18 -21 20 -120 20 -99 0 -110 -2 -120 -20z"/>
+            </g>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span>TAP ONE</span>
+          <small>UN GESTE. UN AVIS. PLUS DE VISIBILITÉ.</small>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Navigation principale">
+        <a href="#tarifs">Tarifs</a>
+        <a href="#fonctionnement">Fonctionnement</a>
+        <a href="#avantages">Avantages</a>
+        <a href="#produit">Produit</a>
+        <a href="#garantie">Garantie</a>
+        <a href="#faq">FAQ</a>
+        <a href="mailto:contact@tapone.fr">Contact</a>
+      </nav>
+</div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">La carte NFC qui simplifie les avis Google</span>
+          <h1>Transformez un client satisfait en avis Google, en quelques secondes.</h1>
+          <p class="lead">
+            Votre client approche son téléphone de TAP ONE et accède directement à votre page d’avis.
+            Pas de recherche, pas d’application à installer, pas de “je le ferai plus tard”.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-dark" href="#tarifs">Découvrir TAP ONE ↓</a>
+            <a class="btn btn-light" href="#fonctionnement">Voir comment ça marche</a>
+          </div>
+        </div>
+
+        <div class="visual-stage" aria-label="Démonstration visuelle TAP ONE">
+          <div class="card-photo card-graphic">
+<svg class="tapone-card-svg" viewBox="0 0 600 600" role="img" aria-label="Carte NFC TAP ONE">
+  <defs>
+    <linearGradient id="cardBlueH" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b2f9e"/>
+      <stop offset="100%" stop-color="#1c4fe6"/>
+    </linearGradient>
+    <linearGradient id="glossH" gradientUnits="userSpaceOnUse" x1="-80" y1="580" x2="520" y2="-40">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="36%" stop-color="#ffffff" stop-opacity=".14"/>
+      <stop offset="52%" stop-color="#ffffff" stop-opacity=".04"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="cardClipH">
+      <rect x="8" y="8" width="584" height="584" rx="36"/>
+    </clipPath>
+  </defs>
+
+  <g>
+    <!-- subtle edge / thickness peeking from behind the card -->
+    <rect x="10" y="12" width="584" height="584" rx="36" fill="#c9cee0"/>
+
+    <g clip-path="url(#cardClipH)">
+      <rect x="8" y="8" width="584" height="584" rx="36" fill="#ffffff"/>
+
+      <!-- light blue "shadow" layer peeking below the main wave -->
+      <path d="M8 44 Q8 8 44 8 L556 8 Q592 8 592 44 L592 320 C578.8 317.0 538.2 307.8 513.0 302.0 C487.8 296.2 460.3 288.5 441.0 285.0 C421.7 281.5 420.5 283.0 397.0 281.0 C373.5 279.0 332.3 273.0 300.0 273.0 C267.7 273.0 226.5 279.0 203.0 281.0 C179.5 283.0 178.3 281.5 159.0 285.0 C139.7 288.5 112.2 296.2 87.0 302.0 C61.8 307.8 21.2 317.0 8.0 320.0 Z"
+            fill="#7ea0f5"/>
+
+      <!-- main blue wave (measured from the real card photo) -->
+      <path d="M8 44 Q8 8 44 8 L556 8 Q592 8 592 44 L592 306 C578.8 303.0 538.2 293.8 513.0 288.0 C487.8 282.2 460.3 274.5 441.0 271.0 C421.7 267.5 420.5 269.0 397.0 267.0 C373.5 265.0 332.3 259.0 300.0 259.0 C267.7 259.0 226.5 265.0 203.0 267.0 C179.5 269.0 178.3 267.5 159.0 271.0 C139.7 274.5 112.2 282.2 87.0 288.0 C61.8 293.8 21.2 303.0 8.0 306.0 Z"
+            fill="url(#cardBlueH)"/>
+
+      <text x="300" y="46" text-anchor="middle" letter-spacing="7"
+            font-family="Inter, Arial, sans-serif" font-size="26" fill="#ffc02e">★★★★★</text>
+
+      <text x="300" y="116" text-anchor="middle"
+            font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#ffffff" letter-spacing="-.3">
+        NOUS APPRÉCIERIONS
+      </text>
+      <text x="300" y="167" text-anchor="middle"
+            font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" fill="#ffffff" letter-spacing="-.5">
+        VOTRE AVIS SUR GOOGLE !
+      </text>
+
+      <!-- Google G mark, straddling the wave boundary (measured position/size) -->
+      <g transform="translate(300 259)">
+        <circle r="74" fill="#12245c" opacity=".12"/>
+        <circle r="72" fill="#ffffff"/>
+        <g transform="translate(-50 -50) scale(5.55)">
+          <path fill="#4285F4" d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.6836-3.8741 2.6836-6.615z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.4673-.806 5.9564-2.1805l-2.9087-2.2581c-.8059.54-1.8368.8618-3.0477.8618-2.3455 0-4.3282-1.5836-5.0359-3.7104H.9573v2.3318C2.4382 15.9832 5.4818 18 9 18z"/>
+          <path fill="#FBBC05" d="M3.9641 10.71c-.18-.54-.2822-1.1168-.2822-1.71s.1023-1.17.2822-1.71V4.9582H.9573C.3477 6.1732 0 7.5477 0 9c0 1.4523.3477 2.8268.9573 4.0418L3.9641 10.71z"/>
+          <path fill="#EA4335" d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.346l2.5814-2.5814C13.4632.8918 11.43 0 9 0 5.4818 0 2.4382 2.0168.9573 4.9582L3.9641 7.29C4.6718 5.1632 6.6545 3.5795 9 3.5795z"/>
+        </g>
+      </g>
+
+      <!-- NFC pictogram: traced directly from the real TAP ONE card, measured size/position -->
+      <svg x="184" y="367" width="232" height="135" viewBox="0 0 846 492" overflow="visible">
+        <g transform="translate(0,492) scale(0.1,-0.1)" fill="#111111" stroke="none">
+          <path d="M4882 4504 c-145 -27 -245 -127 -291 -295 -19 -66 -21 -103 -21 -307 0 -170 -3 -232 -12 -232 -6 0 -42 28 -79 63 -123 114 -336 266 -424 303 -19 7 -36 18 -39 23 -4 5 -40 25 -81 45 -41 20 -108 52 -148 71 -41 19 -78 35 -83 35 -5 0 -36 11 -69 24 -104 41 -248 85 -315 95 -36 6 -87 17 -115 25 -170 48 -561 58 -840 21 -147 -19 -373 -61 -429 -80 -22 -7 -61 -16 -86 -20 -25 -4 -54 -12 -65 -18 -11 -6 -54 -23 -95 -38 -114 -41 -201 -79 -240 -105 -19 -13 -40 -24 -46 -24 -6 0 -33 -14 -60 -32 -27 -17 -76 -49 -109 -70 -95 -60 -126 -82 -149 -104 -11 -11 -52 -42 -89 -68 -71 -51 -315 -300 -351 -359 -11 -19 -37 -59 -56 -88 -46 -69 -115 -196 -125 -229 -4 -14 -15 -43 -25 -65 -159 -352 -139 -880 47 -1230 9 -16 32 -60 51 -97 20 -37 53 -88 74 -114 21 -25 38 -50 38 -55 0 -37 315 -355 426 -430 29 -20 67 -48 83 -60 16 -13 52 -37 81 -54 29 -16 74 -45 100 -62 136 -91 557 -245 746 -273 44 -7 122 -21 174 -33 86 -19 127 -21 435 -21 226 0 362 4 405 12 141 27 220 45 325 74 106 29 154 44 295 93 73 25 287 129 370 180 30 19 69 42 85 51 17 9 44 29 62 43 17 14 66 53 108 86 105 81 173 153 186 196 21 69 -34 128 -107 114 -30 -5 -81 -44 -208 -157 -32 -29 -71 -60 -86 -68 -15 -8 -58 -36 -96 -61 -38 -25 -82 -52 -99 -61 -16 -8 -43 -22 -60 -31 -145 -77 -401 -170 -605 -218 -221 -53 -614 -75 -858 -48 -118 13 -375 63 -457 89 -33 10 -76 22 -95 25 -73 15 -424 177 -489 227 -13 10 -29 18 -35 18 -11 0 -83 52 -214 152 -61 47 -220 212 -272 283 -91 123 -170 253 -170 280 0 6 -11 30 -24 55 -84 157 -124 414 -105 669 9 114 13 137 62 296 71 234 260 506 494 710 80 70 225 175 242 175 5 0 19 8 32 19 41 31 303 161 326 161 8 0 35 11 61 24 56 28 330 98 497 127 221 38 730 37 860 -1 17 -5 71 -17 120 -26 100 -19 251 -63 335 -99 30 -12 67 -26 83 -29 33 -8 266 -120 322 -154 125 -79 242 -158 255 -173 48 -54 204 -179 223 -179 12 0 39 9 60 20 20 11 41 20 47 20 7 0 8 -61 1 -152 -1 -14 -61 -8 -93 8 -48 25 -215 64 -275 64 -68 0 -108 -17 -156 -67 -33 -35 -40 -51 -57 -134 -19 -90 -19 -97 -3 -172 24 -116 71 -172 163 -197 59 -16 64 -29 35 -93 -15 -31 -29 -72 -32 -90 -7 -43 32 -163 64 -198 30 -33 29 -49 -7 -84 -36 -35 -70 -131 -70 -199 0 -64 36 -144 90 -203 45 -48 46 -52 23 -96 -23 -43 -24 -189 -1 -232 37 -69 146 -132 274 -158 79 -16 84 -23 61 -92 -16 -45 -11 -128 12 -212 12 -44 92 -145 148 -188 95 -72 127 -76 630 -75 l446 1 -6 -31 c-14 -68 0 -90 79 -127 137 -63 419 -72 573 -19 104 36 158 42 219 22 68 -23 74 -33 76 -128 1 -53 7 -91 16 -106 14 -22 131 -112 145 -112 4 0 46 -24 93 -53 96 -58 215 -111 288 -127 127 -29 244 52 320 220 17 39 119 241 214 425 35 66 85 165 112 220 28 55 56 111 64 125 63 111 146 300 151 341 11 91 -61 191 -187 260 -25 14 -54 30 -65 37 -89 51 -273 132 -313 138 -58 7 -126 -9 -169 -42 -47 -36 -76 -31 -133 22 -63 59 -80 98 -91 208 -5 50 -16 143 -24 206 -8 63 -23 187 -34 275 -20 158 -42 246 -106 410 -14 39 -33 77 -40 85 -8 8 -23 35 -34 60 -12 25 -36 72 -55 105 -19 33 -55 103 -81 155 -26 52 -64 128 -84 167 -58 116 -158 203 -234 203 -71 0 -184 -84 -256 -189 -67 -98 -68 -396 -2 -505 36 -58 61 -163 61 -255 1 -123 12 -166 51 -207 35 -36 34 -37 -18 -34 -51 2 -72 -9 -93 -49 -18 -36 -19 -70 -22 -702 -3 -760 2 -714 -91 -765 l-52 -29 -230 -2 c-579 -4 -913 -2 -941 6 -83 24 -104 55 -115 168 -5 57 -14 94 -29 118 -25 41 -16 69 26 79 38 10 111 88 125 134 11 38 8 149 -7 219 -5 29 -2 37 30 65 29 26 42 49 63 115 29 95 28 148 -6 213 -28 54 -27 81 5 111 49 45 88 137 88 204 -1 134 -113 277 -235 299 -20 3 -45 16 -57 29 -20 22 -20 27 -19 627 2 675 1 658 70 714 l39 31 613 3 614 2 36 -31 c55 -48 65 -76 65 -176 0 -107 18 -146 76 -162 149 -41 201 142 97 347 -66 131 -164 203 -303 222 -100 13 -1140 9 -1218 -6z m1703 -930 c30 -63 55 -121 55 -128 0 -6 14 -33 30 -59 17 -26 30 -51 30 -56 0 -4 13 -26 28 -47 55 -76 150 -286 167 -369 10 -44 24 -102 32 -130 8 -27 17 -102 19 -165 4 -104 16 -221 45 -425 19 -139 108 -273 232 -352 53 -33 54 -45 14 -112 -19 -33 -38 -70 -42 -83 -4 -12 -28 -61 -53 -108 -53 -100 -167 -322 -188 -365 -8 -16 -21 -41 -29 -55 -8 -14 -22 -41 -30 -60 -43 -100 -58 -107 -132 -63 -64 38 -208 40 -318 6 -122 -38 -225 -55 -268 -42 -47 13 -37 32 26 47 121 31 222 158 248 311 16 97 12 1265 -4 1298 -8 16 -17 40 -20 54 -6 25 -4 27 34 33 48 8 99 53 99 88 0 13 -7 50 -15 81 -8 32 -15 97 -15 145 0 87 -9 122 -62 241 -54 122 -54 314 -1 394 42 61 56 52 118 -79z m-2190 -369 c28 -9 69 -21 93 -25 76 -16 79 -21 80 -100 0 -92 -10 -98 -110 -66 -40 13 -106 31 -146 41 -40 9 -81 25 -92 34 -28 24 -32 128 -5 155 16 16 16 16 180 -39z m151 -429 c22 -7 82 -21 134 -31 133 -24 179 -53 200 -126 8 -28 6 -39 -14 -70 -34 -51 -72 -65 -122 -44 -21 8 -79 22 -130 30 -95 16 -190 51 -213 79 -7 9 -16 36 -18 61 -5 41 -3 47 30 80 39 39 69 44 133 21z m15 -457 c46 -11 92 -25 102 -31 11 -5 40 -13 65 -17 41 -5 49 -11 69 -46 30 -53 29 -74 -7 -123 -34 -48 -68 -54 -150 -27 -25 8 -85 23 -135 34 -77 17 -94 25 -117 53 -43 50 -31 123 24 162 29 21 49 20 149 -5z m59 -468 c60 -14 89 -25 102 -41 43 -53 6 -95 -74 -86 -142 18 -198 45 -198 96 0 34 35 64 65 55 11 -3 58 -14 105 -24z m3040 -31 c25 -16 88 -49 141 -74 146 -69 184 -116 139 -171 -5 -6 -33 -58 -63 -115 -29 -58 -61 -118 -70 -135 -9 -16 -24 -46 -32 -65 -8 -19 -42 -84 -75 -145 -34 -60 -70 -130 -81 -155 -11 -25 -24 -52 -29 -60 -12 -20 -125 -239 -162 -315 -51 -102 -74 -114 -146 -75 -20 11 -57 29 -82 40 -91 40 -205 108 -224 133 -19 26 -19 26 6 74 34 66 111 215 123 239 10 21 57 112 88 169 9 17 24 48 35 70 10 22 58 117 107 210 112 215 159 310 179 358 26 63 65 67 146 17z M4470 2701 c-8 -15 -6 -24 7 -37 16 -16 18 -15 26 4 18 41 -12 71 -33 33z M4620 2640 c0 -5 14 -10 31 -10 17 0 28 4 24 10 -3 6 -17 10 -31 10 -13 0 -24 -4 -24 -10z M4475 2230 c-4 -7 -3 -16 3 -22 14 -14 45 -2 40 15 -6 16 -34 21 -43 7z M5193 4207 c-33 -12 -93 -79 -93 -104 0 -27 29 -69 57 -84 35 -18 532 -26 645 -10 86 12 108 31 108 95 0 44 -19 75 -60 97 -35 19 -610 25 -657 6z M3044 3769 c-51 -15 -104 -69 -111 -112 -5 -33 3 -57 54 -165 88 -184 120 -262 128 -307 3 -22 13 -50 21 -63 8 -13 21 -58 29 -100 8 -42 21 -108 29 -147 42 -195 43 -601 1 -741 -8 -28 -21 -88 -29 -133 -8 -44 -23 -96 -34 -114 -11 -17 -23 -50 -27 -72 -5 -34 -47 -143 -74 -195 -99 -190 -103 -200 -97 -245 13 -82 114 -145 187 -114 43 17 127 106 140 149 7 19 20 47 31 62 10 15 25 45 33 67 7 22 20 50 28 63 8 13 18 39 22 58 4 19 16 53 26 75 28 63 75 240 93 350 9 55 23 143 31 196 21 134 19 329 -6 521 -22 177 -35 246 -49 263 -5 6 -17 45 -25 85 -9 41 -26 97 -39 125 -13 27 -29 68 -36 90 -7 22 -34 84 -61 138 -26 54 -51 108 -55 120 -11 36 -96 129 -131 144 -36 15 -36 15 -79 2z M5486 3630 c-129 -8 -126 -3 -125 -244 2 -226 5 -247 40 -260 65 -22 116 33 99 107 -9 42 -3 76 14 78 6 1 32 1 58 -1 30 -1 55 4 72 15 34 23 49 11 89 -73 27 -56 37 -67 97 -102 90 -54 130 -54 222 0 78 47 90 64 86 123 -3 38 -6 42 -32 45 -37 5 -77 -13 -112 -49 -33 -34 -57 -36 -102 -9 -39 24 -52 54 -52 119 0 95 105 183 142 120 16 -25 79 -59 111 -59 32 0 47 18 47 60 0 30 -7 41 -49 77 -128 111 -293 64 -367 -103 -23 -53 -26 -56 -52 -48 -15 5 -58 9 -96 9 -55 0 -71 4 -80 18 -23 36 3 52 99 57 81 5 90 7 108 32 25 33 17 76 -16 82 -44 9 -114 11 -201 6z M4910 3615 c-20 -24 -28 -458 -9 -481 16 -20 73 -17 100 5 22 18 24 27 24 113 0 75 3 93 15 93 15 0 64 -76 102 -158 18 -39 29 -49 59 -59 47 -13 85 -4 101 25 17 28 13 434 -4 454 -17 20 -82 16 -103 -7 -16 -17 -17 -31 -11 -110 4 -49 3 -90 -2 -90 -16 0 -49 44 -91 121 -50 93 -59 101 -119 107 -37 3 -51 0 -62 -13z M2608 3519 c-79 -51 -83 -108 -17 -220 15 -25 30 -57 34 -70 4 -13 18 -42 30 -64 13 -22 28 -60 35 -85 6 -25 19 -65 29 -90 51 -124 84 -602 48 -695 -9 -22 -18 -71 -20 -110 -5 -71 -64 -268 -93 -313 -8 -13 -21 -42 -28 -65 -7 -23 -25 -59 -39 -81 -52 -75 -48 -138 12 -204 36 -39 43 -42 89 -42 43 0 56 5 96 39 26 21 54 47 62 59 41 60 98 173 114 226 9 34 27 79 39 101 11 22 21 56 21 76 0 20 6 54 14 76 33 93 68 369 63 491 -8 182 -26 319 -52 396 -13 39 -28 94 -34 121 -6 28 -22 72 -36 99 -14 27 -25 57 -25 66 0 9 -13 37 -30 61 -16 24 -30 47 -30 51 0 5 -14 37 -30 72 -64 134 -152 171 -252 105z M2243 3310 c-12 -5 -33 -26 -47 -47 -40 -58 -36 -109 18 -207 24 -45 47 -97 51 -116 4 -19 18 -66 30 -105 52 -156 59 -426 16 -580 -42 -147 -59 -203 -74 -231 -8 -16 -29 -65 -46 -109 -48 -120 -32 -163 74 -201 49 -16 53 -16 98 1 26 10 57 31 70 49 32 42 107 179 107 196 0 7 11 36 24 64 13 28 27 74 31 101 4 28 17 73 28 100 32 77 32 475 0 585 -11 41 -24 95 -27 119 -4 24 -15 56 -25 70 -10 14 -26 50 -34 79 -20 67 -79 163 -129 207 -34 31 -44 35 -91 34 -28 0 -62 -4 -74 -9z M1874 3090 c-97 -49 -120 -127 -65 -223 92 -161 112 -322 66 -517 -15 -63 -38 -135 -50 -160 -58 -116 -55 -173 16 -229 57 -46 99 -51 149 -16 44 30 114 117 125 155 4 14 16 42 26 62 11 21 29 93 40 160 44 255 -4 540 -114 686 -72 95 -124 117 -193 82z"/>
+        </g>
+      </svg>
+
+      <text x="300" y="545" text-anchor="middle"
+            font-family="Inter, Arial, sans-serif" font-size="20" fill="#161616">
+        Touchez pour évaluer votre expérience
+      </text>
+
+      <!-- soft diagonal gloss, like the photographed PVC card -->
+      <rect x="8" y="8" width="584" height="584" fill="url(#glossH)"/>
+    </g>
+  </g>
+</svg>
+</div>
+          <div class="tap-pulse" aria-hidden="true"></div>
+
+          <div class="phone" aria-hidden="true">
+            <div class="phone-title">Donnez votre avis sur votre expérience</div>
+            <div class="stars" aria-label="5 étoiles"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+            <div class="review-box">Partagez votre expérience…</div>
+            <button class="publish" type="button">Publier</button>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-cue">Faites défiler ↓</div>
+    </section>
+
+    <div class="pc-scale-wrap">
+    <section class="pricing" id="tarifs">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Des tarifs simples.</h2>
+          <p>Une carte prête à utiliser pour votre établissement, avec configuration et garantie 1 an.</p>
+        </div>
+
+        <div class="pricing-grid stagger">
+          <article class="price-card">
+            <div class="price-name">1 TAP ONE</div>
+            <div class="price">19,99 €</div>
+            <div class="price-note">Idéal pour une caisse, un comptoir ou un point d’accueil.</div>
+</article>
+
+          <article class="price-card featured">
+            <div class="badge">Le plus choisi</div>
+            <div class="price-name">2 TAP ONE — DUO</div>
+            <div class="price">29,99 €</div>
+            <div class="price-note">Deux points de contact pour équiper davantage votre commerce.</div>
+</article>
+        </div>
+
+        <ul class="reassurance-bar stagger" aria-label="Informations clés">
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>
+            Configuration incluse
+          </li>
+          <li class="is-key">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg>
+            Aucun abonnement
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4"/></svg>
+            Compatible iPhone &amp; Android
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V6Z"/></svg>
+            <button type="button" class="asterisk-note" data-open-warranty>Garantie 1 an*</button>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="fonctionnement">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Comment ça marche ?</h2>
+          <p>Trois étapes. Le bon moment, c’est quand l’expérience du client est encore fraîche.</p>
+        </div>
+
+        <div class="steps-grid stagger">
+          <article class="step">
+            <div class="step-num">1</div>
+            <h3>Approchez</h3>
+            <p>Le client approche son smartphone de la carte TAP ONE placée près de votre caisse ou comptoir.</p>
+          </article>
+          <article class="step">
+            <div class="step-num">2</div>
+            <h3>Ouvrez</h3>
+            <p>Le lien NFC ouvre directement la page d’avis Google de votre établissement.</p>
+          </article>
+          <article class="step">
+            <div class="step-num">3</div>
+            <h3>Donnez votre avis</h3>
+            <p>Le client peut partager son expérience immédiatement, en quelques instants.</p><div class="step-stars" aria-label="5 étoiles"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="problem">
+      <div class="wrap problem-grid">
+        <h2>Un client satisfait peut partir… et oublier.</h2>
+        <p>
+          Sans TAP ONE, il doit retrouver votre établissement plus tard, chercher votre fiche Google et penser à revenir.
+          <strong>TAP ONE réduit cette friction au moment où son expérience est encore présente.</strong>
+        </p>
+      </div>
+    </section>
+
+    <section id="avantages">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Pourquoi les avis comptent.</h2>
+          <p>Ils aident votre présence Google à mieux refléter l’expérience réelle de vos clients.</p>
+        </div>
+
+        <div class="benefits stagger">
+          <article class="benefit">
+            <div class="benefit-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M4 24s7-11 20-11 20 11 20 11-7 11-20 11S4 24 4 24Z"/><circle cx="24" cy="24" r="6"/></svg></div>
+            <h3>Plus de visibilité</h3>
+            <p>Une fiche Google active donne davantage d’informations aux personnes qui découvrent votre établissement.</p>
+          </article>
+          <article class="benefit">
+            <div class="benefit-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="18" cy="18" r="7"/><circle cx="32" cy="20" r="5"/><path d="M6 40c1-9 6-13 12-13s11 4 12 13"/><path d="M28 29c7 0 11 4 12 11"/></svg></div>
+            <h3>Plus de confiance</h3>
+            <p>Les futurs clients peuvent s’appuyer sur les expériences partagées par d’autres clients.</p>
+          </article>
+          <article class="benefit">
+            <div class="benefit-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 39h36"/><rect x="9" y="29" width="6" height="7"/><rect x="20" y="23" width="6" height="13"/><rect x="31" y="16" width="6" height="20"/><path d="M9 22l10-8 8 3 11-10"/><path d="M33 7h5v5"/></svg></div>
+            <h3>Moins de friction</h3>
+            <p>Plus besoin de demander au client de rechercher votre établissement une fois rentré chez lui.</p>
+          </article>
+          <article class="benefit">
+            <div class="benefit-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17"/><path d="M24 13v12l8 5"/></svg></div>
+            <h3>Plus simple</h3>
+            <p>Un geste suffit pour ouvrir la bonne page au bon moment.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="produit">
+      <div class="wrap product-grid">
+        <article class="product-panel">
+          <div>
+            <h2 style="font-size:42px;margin:0;letter-spacing:-.045em;">Le produit.</h2>
+            <ul>
+              <li>Technologie NFC</li>
+              <li>Aucune application à installer</li>
+              <li>Lien Google personnalisé</li>
+              <li>Mise en place en quelques secondes</li>
+              <li>Prêt à utiliser dans votre commerce</li>
+            </ul>
+          </div>
+          <div class="product-card-graphic">
+<svg class="tapone-card-svg" viewBox="0 0 600 600" role="img" aria-label="Carte NFC TAP ONE">
+  <defs>
+    <linearGradient id="cardBlueP" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b2f9e"/>
+      <stop offset="100%" stop-color="#1c4fe6"/>
+    </linearGradient>
+    <linearGradient id="glossP" gradientUnits="userSpaceOnUse" x1="-80" y1="580" x2="520" y2="-40">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="36%" stop-color="#ffffff" stop-opacity=".14"/>
+      <stop offset="52%" stop-color="#ffffff" stop-opacity=".04"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="cardClipP">
+      <rect x="8" y="8" width="584" height="584" rx="36"/>
+    </clipPath>
+  </defs>
+
+  <g>
+    <!-- subtle edge / thickness peeking from behind the card -->
+    <rect x="10" y="12" width="584" height="584" rx="36" fill="#c9cee0"/>
+
+    <g clip-path="url(#cardClipP)">
+      <rect x="8" y="8" width="584" height="584" rx="36" fill="#ffffff"/>
+
+      <!-- light blue "shadow" layer peeking below the main wave -->
+      <path d="M8 44 Q8 8 44 8 L556 8 Q592 8 592 44 L592 320 C578.8 317.0 538.2 307.8 513.0 302.0 C487.8 296.2 460.3 288.5 441.0 285.0 C421.7 281.5 420.5 283.0 397.0 281.0 C373.5 279.0 332.3 273.0 300.0 273.0 C267.7 273.0 226.5 279.0 203.0 281.0 C179.5 283.0 178.3 281.5 159.0 285.0 C139.7 288.5 112.2 296.2 87.0 302.0 C61.8 307.8 21.2 317.0 8.0 320.0 Z"
+            fill="#7ea0f5"/>
+
+      <!-- main blue wave (measured from the real card photo) -->
+      <path d="M8 44 Q8 8 44 8 L556 8 Q592 8 592 44 L592 306 C578.8 303.0 538.2 293.8 513.0 288.0 C487.8 282.2 460.3 274.5 441.0 271.0 C421.7 267.5 420.5 269.0 397.0 267.0 C373.5 265.0 332.3 259.0 300.0 259.0 C267.7 259.0 226.5 265.0 203.0 267.0 C179.5 269.0 178.3 267.5 159.0 271.0 C139.7 274.5 112.2 282.2 87.0 288.0 C61.8 293.8 21.2 303.0 8.0 306.0 Z"
+            fill="url(#cardBlueP)"/>
+
+      <text x="300" y="46" text-anchor="middle" letter-spacing="7"
+            font-family="Inter, Arial, sans-serif" font-size="26" fill="#ffc02e">★★★★★</text>
+
+      <text x="300" y="116" text-anchor="middle"
+            font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#ffffff" letter-spacing="-.3">
+        NOUS APPRÉCIERIONS
+      </text>
+      <text x="300" y="167" text-anchor="middle"
+            font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" fill="#ffffff" letter-spacing="-.5">
+        VOTRE AVIS SUR GOOGLE !
+      </text>
+
+      <!-- Google G mark, straddling the wave boundary (measured position/size) -->
+      <g transform="translate(300 259)">
+        <circle r="74" fill="#12245c" opacity=".12"/>
+        <circle r="72" fill="#ffffff"/>
+        <g transform="translate(-50 -50) scale(5.55)">
+          <path fill="#4285F4" d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.6836-3.8741 2.6836-6.615z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.4673-.806 5.9564-2.1805l-2.9087-2.2581c-.8059.54-1.8368.8618-3.0477.8618-2.3455 0-4.3282-1.5836-5.0359-3.7104H.9573v2.3318C2.4382 15.9832 5.4818 18 9 18z"/>
+          <path fill="#FBBC05" d="M3.9641 10.71c-.18-.54-.2822-1.1168-.2822-1.71s.1023-1.17.2822-1.71V4.9582H.9573C.3477 6.1732 0 7.5477 0 9c0 1.4523.3477 2.8268.9573 4.0418L3.9641 10.71z"/>
+          <path fill="#EA4335" d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.346l2.5814-2.5814C13.4632.8918 11.43 0 9 0 5.4818 0 2.4382 2.0168.9573 4.9582L3.9641 7.29C4.6718 5.1632 6.6545 3.5795 9 3.5795z"/>
+        </g>
+      </g>
+
+      <!-- NFC pictogram: traced directly from the real TAP ONE card, measured size/position -->
+      <svg x="184" y="367" width="232" height="135" viewBox="0 0 846 492" overflow="visible">
+        <g transform="translate(0,492) scale(0.1,-0.1)" fill="#111111" stroke="none">
+          <path d="M4882 4504 c-145 -27 -245 -127 -291 -295 -19 -66 -21 -103 -21 -307 0 -170 -3 -232 -12 -232 -6 0 -42 28 -79 63 -123 114 -336 266 -424 303 -19 7 -36 18 -39 23 -4 5 -40 25 -81 45 -41 20 -108 52 -148 71 -41 19 -78 35 -83 35 -5 0 -36 11 -69 24 -104 41 -248 85 -315 95 -36 6 -87 17 -115 25 -170 48 -561 58 -840 21 -147 -19 -373 -61 -429 -80 -22 -7 -61 -16 -86 -20 -25 -4 -54 -12 -65 -18 -11 -6 -54 -23 -95 -38 -114 -41 -201 -79 -240 -105 -19 -13 -40 -24 -46 -24 -6 0 -33 -14 -60 -32 -27 -17 -76 -49 -109 -70 -95 -60 -126 -82 -149 -104 -11 -11 -52 -42 -89 -68 -71 -51 -315 -300 -351 -359 -11 -19 -37 -59 -56 -88 -46 -69 -115 -196 -125 -229 -4 -14 -15 -43 -25 -65 -159 -352 -139 -880 47 -1230 9 -16 32 -60 51 -97 20 -37 53 -88 74 -114 21 -25 38 -50 38 -55 0 -37 315 -355 426 -430 29 -20 67 -48 83 -60 16 -13 52 -37 81 -54 29 -16 74 -45 100 -62 136 -91 557 -245 746 -273 44 -7 122 -21 174 -33 86 -19 127 -21 435 -21 226 0 362 4 405 12 141 27 220 45 325 74 106 29 154 44 295 93 73 25 287 129 370 180 30 19 69 42 85 51 17 9 44 29 62 43 17 14 66 53 108 86 105 81 173 153 186 196 21 69 -34 128 -107 114 -30 -5 -81 -44 -208 -157 -32 -29 -71 -60 -86 -68 -15 -8 -58 -36 -96 -61 -38 -25 -82 -52 -99 -61 -16 -8 -43 -22 -60 -31 -145 -77 -401 -170 -605 -218 -221 -53 -614 -75 -858 -48 -118 13 -375 63 -457 89 -33 10 -76 22 -95 25 -73 15 -424 177 -489 227 -13 10 -29 18 -35 18 -11 0 -83 52 -214 152 -61 47 -220 212 -272 283 -91 123 -170 253 -170 280 0 6 -11 30 -24 55 -84 157 -124 414 -105 669 9 114 13 137 62 296 71 234 260 506 494 710 80 70 225 175 242 175 5 0 19 8 32 19 41 31 303 161 326 161 8 0 35 11 61 24 56 28 330 98 497 127 221 38 730 37 860 -1 17 -5 71 -17 120 -26 100 -19 251 -63 335 -99 30 -12 67 -26 83 -29 33 -8 266 -120 322 -154 125 -79 242 -158 255 -173 48 -54 204 -179 223 -179 12 0 39 9 60 20 20 11 41 20 47 20 7 0 8 -61 1 -152 -1 -14 -61 -8 -93 8 -48 25 -215 64 -275 64 -68 0 -108 -17 -156 -67 -33 -35 -40 -51 -57 -134 -19 -90 -19 -97 -3 -172 24 -116 71 -172 163 -197 59 -16 64 -29 35 -93 -15 -31 -29 -72 -32 -90 -7 -43 32 -163 64 -198 30 -33 29 -49 -7 -84 -36 -35 -70 -131 -70 -199 0 -64 36 -144 90 -203 45 -48 46 -52 23 -96 -23 -43 -24 -189 -1 -232 37 -69 146 -132 274 -158 79 -16 84 -23 61 -92 -16 -45 -11 -128 12 -212 12 -44 92 -145 148 -188 95 -72 127 -76 630 -75 l446 1 -6 -31 c-14 -68 0 -90 79 -127 137 -63 419 -72 573 -19 104 36 158 42 219 22 68 -23 74 -33 76 -128 1 -53 7 -91 16 -106 14 -22 131 -112 145 -112 4 0 46 -24 93 -53 96 -58 215 -111 288 -127 127 -29 244 52 320 220 17 39 119 241 214 425 35 66 85 165 112 220 28 55 56 111 64 125 63 111 146 300 151 341 11 91 -61 191 -187 260 -25 14 -54 30 -65 37 -89 51 -273 132 -313 138 -58 7 -126 -9 -169 -42 -47 -36 -76 -31 -133 22 -63 59 -80 98 -91 208 -5 50 -16 143 -24 206 -8 63 -23 187 -34 275 -20 158 -42 246 -106 410 -14 39 -33 77 -40 85 -8 8 -23 35 -34 60 -12 25 -36 72 -55 105 -19 33 -55 103 -81 155 -26 52 -64 128 -84 167 -58 116 -158 203 -234 203 -71 0 -184 -84 -256 -189 -67 -98 -68 -396 -2 -505 36 -58 61 -163 61 -255 1 -123 12 -166 51 -207 35 -36 34 -37 -18 -34 -51 2 -72 -9 -93 -49 -18 -36 -19 -70 -22 -702 -3 -760 2 -714 -91 -765 l-52 -29 -230 -2 c-579 -4 -913 -2 -941 6 -83 24 -104 55 -115 168 -5 57 -14 94 -29 118 -25 41 -16 69 26 79 38 10 111 88 125 134 11 38 8 149 -7 219 -5 29 -2 37 30 65 29 26 42 49 63 115 29 95 28 148 -6 213 -28 54 -27 81 5 111 49 45 88 137 88 204 -1 134 -113 277 -235 299 -20 3 -45 16 -57 29 -20 22 -20 27 -19 627 2 675 1 658 70 714 l39 31 613 3 614 2 36 -31 c55 -48 65 -76 65 -176 0 -107 18 -146 76 -162 149 -41 201 142 97 347 -66 131 -164 203 -303 222 -100 13 -1140 9 -1218 -6z m1703 -930 c30 -63 55 -121 55 -128 0 -6 14 -33 30 -59 17 -26 30 -51 30 -56 0 -4 13 -26 28 -47 55 -76 150 -286 167 -369 10 -44 24 -102 32 -130 8 -27 17 -102 19 -165 4 -104 16 -221 45 -425 19 -139 108 -273 232 -352 53 -33 54 -45 14 -112 -19 -33 -38 -70 -42 -83 -4 -12 -28 -61 -53 -108 -53 -100 -167 -322 -188 -365 -8 -16 -21 -41 -29 -55 -8 -14 -22 -41 -30 -60 -43 -100 -58 -107 -132 -63 -64 38 -208 40 -318 6 -122 -38 -225 -55 -268 -42 -47 13 -37 32 26 47 121 31 222 158 248 311 16 97 12 1265 -4 1298 -8 16 -17 40 -20 54 -6 25 -4 27 34 33 48 8 99 53 99 88 0 13 -7 50 -15 81 -8 32 -15 97 -15 145 0 87 -9 122 -62 241 -54 122 -54 314 -1 394 42 61 56 52 118 -79z m-2190 -369 c28 -9 69 -21 93 -25 76 -16 79 -21 80 -100 0 -92 -10 -98 -110 -66 -40 13 -106 31 -146 41 -40 9 -81 25 -92 34 -28 24 -32 128 -5 155 16 16 16 16 180 -39z m151 -429 c22 -7 82 -21 134 -31 133 -24 179 -53 200 -126 8 -28 6 -39 -14 -70 -34 -51 -72 -65 -122 -44 -21 8 -79 22 -130 30 -95 16 -190 51 -213 79 -7 9 -16 36 -18 61 -5 41 -3 47 30 80 39 39 69 44 133 21z m15 -457 c46 -11 92 -25 102 -31 11 -5 40 -13 65 -17 41 -5 49 -11 69 -46 30 -53 29 -74 -7 -123 -34 -48 -68 -54 -150 -27 -25 8 -85 23 -135 34 -77 17 -94 25 -117 53 -43 50 -31 123 24 162 29 21 49 20 149 -5z m59 -468 c60 -14 89 -25 102 -41 43 -53 6 -95 -74 -86 -142 18 -198 45 -198 96 0 34 35 64 65 55 11 -3 58 -14 105 -24z m3040 -31 c25 -16 88 -49 141 -74 146 -69 184 -116 139 -171 -5 -6 -33 -58 -63 -115 -29 -58 -61 -118 -70 -135 -9 -16 -24 -46 -32 -65 -8 -19 -42 -84 -75 -145 -34 -60 -70 -130 -81 -155 -11 -25 -24 -52 -29 -60 -12 -20 -125 -239 -162 -315 -51 -102 -74 -114 -146 -75 -20 11 -57 29 -82 40 -91 40 -205 108 -224 133 -19 26 -19 26 6 74 34 66 111 215 123 239 10 21 57 112 88 169 9 17 24 48 35 70 10 22 58 117 107 210 112 215 159 310 179 358 26 63 65 67 146 17z M4470 2701 c-8 -15 -6 -24 7 -37 16 -16 18 -15 26 4 18 41 -12 71 -33 33z M4620 2640 c0 -5 14 -10 31 -10 17 0 28 4 24 10 -3 6 -17 10 -31 10 -13 0 -24 -4 -24 -10z M4475 2230 c-4 -7 -3 -16 3 -22 14 -14 45 -2 40 15 -6 16 -34 21 -43 7z M5193 4207 c-33 -12 -93 -79 -93 -104 0 -27 29 -69 57 -84 35 -18 532 -26 645 -10 86 12 108 31 108 95 0 44 -19 75 -60 97 -35 19 -610 25 -657 6z M3044 3769 c-51 -15 -104 -69 -111 -112 -5 -33 3 -57 54 -165 88 -184 120 -262 128 -307 3 -22 13 -50 21 -63 8 -13 21 -58 29 -100 8 -42 21 -108 29 -147 42 -195 43 -601 1 -741 -8 -28 -21 -88 -29 -133 -8 -44 -23 -96 -34 -114 -11 -17 -23 -50 -27 -72 -5 -34 -47 -143 -74 -195 -99 -190 -103 -200 -97 -245 13 -82 114 -145 187 -114 43 17 127 106 140 149 7 19 20 47 31 62 10 15 25 45 33 67 7 22 20 50 28 63 8 13 18 39 22 58 4 19 16 53 26 75 28 63 75 240 93 350 9 55 23 143 31 196 21 134 19 329 -6 521 -22 177 -35 246 -49 263 -5 6 -17 45 -25 85 -9 41 -26 97 -39 125 -13 27 -29 68 -36 90 -7 22 -34 84 -61 138 -26 54 -51 108 -55 120 -11 36 -96 129 -131 144 -36 15 -36 15 -79 2z M5486 3630 c-129 -8 -126 -3 -125 -244 2 -226 5 -247 40 -260 65 -22 116 33 99 107 -9 42 -3 76 14 78 6 1 32 1 58 -1 30 -1 55 4 72 15 34 23 49 11 89 -73 27 -56 37 -67 97 -102 90 -54 130 -54 222 0 78 47 90 64 86 123 -3 38 -6 42 -32 45 -37 5 -77 -13 -112 -49 -33 -34 -57 -36 -102 -9 -39 24 -52 54 -52 119 0 95 105 183 142 120 16 -25 79 -59 111 -59 32 0 47 18 47 60 0 30 -7 41 -49 77 -128 111 -293 64 -367 -103 -23 -53 -26 -56 -52 -48 -15 5 -58 9 -96 9 -55 0 -71 4 -80 18 -23 36 3 52 99 57 81 5 90 7 108 32 25 33 17 76 -16 82 -44 9 -114 11 -201 6z M4910 3615 c-20 -24 -28 -458 -9 -481 16 -20 73 -17 100 5 22 18 24 27 24 113 0 75 3 93 15 93 15 0 64 -76 102 -158 18 -39 29 -49 59 -59 47 -13 85 -4 101 25 17 28 13 434 -4 454 -17 20 -82 16 -103 -7 -16 -17 -17 -31 -11 -110 4 -49 3 -90 -2 -90 -16 0 -49 44 -91 121 -50 93 -59 101 -119 107 -37 3 -51 0 -62 -13z M2608 3519 c-79 -51 -83 -108 -17 -220 15 -25 30 -57 34 -70 4 -13 18 -42 30 -64 13 -22 28 -60 35 -85 6 -25 19 -65 29 -90 51 -124 84 -602 48 -695 -9 -22 -18 -71 -20 -110 -5 -71 -64 -268 -93 -313 -8 -13 -21 -42 -28 -65 -7 -23 -25 -59 -39 -81 -52 -75 -48 -138 12 -204 36 -39 43 -42 89 -42 43 0 56 5 96 39 26 21 54 47 62 59 41 60 98 173 114 226 9 34 27 79 39 101 11 22 21 56 21 76 0 20 6 54 14 76 33 93 68 369 63 491 -8 182 -26 319 -52 396 -13 39 -28 94 -34 121 -6 28 -22 72 -36 99 -14 27 -25 57 -25 66 0 9 -13 37 -30 61 -16 24 -30 47 -30 51 0 5 -14 37 -30 72 -64 134 -152 171 -252 105z M2243 3310 c-12 -5 -33 -26 -47 -47 -40 -58 -36 -109 18 -207 24 -45 47 -97 51 -116 4 -19 18 -66 30 -105 52 -156 59 -426 16 -580 -42 -147 -59 -203 -74 -231 -8 -16 -29 -65 -46 -109 -48 -120 -32 -163 74 -201 49 -16 53 -16 98 1 26 10 57 31 70 49 32 42 107 179 107 196 0 7 11 36 24 64 13 28 27 74 31 101 4 28 17 73 28 100 32 77 32 475 0 585 -11 41 -24 95 -27 119 -4 24 -15 56 -25 70 -10 14 -26 50 -34 79 -20 67 -79 163 -129 207 -34 31 -44 35 -91 34 -28 0 -62 -4 -74 -9z M1874 3090 c-97 -49 -120 -127 -65 -223 92 -161 112 -322 66 -517 -15 -63 -38 -135 -50 -160 -58 -116 -55 -173 16 -229 57 -46 99 -51 149 -16 44 30 114 117 125 155 4 14 16 42 26 62 11 21 29 93 40 160 44 255 -4 540 -114 686 -72 95 -124 117 -193 82z"/>
+        </g>
+      </svg>
+
+      <text x="300" y="545" text-anchor="middle"
+            font-family="Inter, Arial, sans-serif" font-size="20" fill="#161616">
+        Touchez pour évaluer votre expérience
+      </text>
+
+      <!-- soft diagonal gloss, like the photographed PVC card -->
+      <rect x="8" y="8" width="584" height="584" fill="url(#glossP)"/>
+    </g>
+  </g>
+</svg>
+</div>
+        </article>
+
+        <article class="guarantee-panel" id="garantie">
+          <div>
+            <div class="shield"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 5 52 13v15c0 15-8 24-20 31C20 52 12 43 12 28V13Z"/><path d="m22 31 7 7 14-16"/></svg></div>
+            <h3>Garantie 1 an<span aria-hidden="true">*</span>.</h3>
+            <p>Votre TAP ONE est garanti pendant 1 an contre les défauts de fonctionnement, dans les conditions prévues par TAP ONE. En cas de défaut couvert, nous remplaçons votre carte.</p>
+            <button type="button" class="link-quiet" data-open-warranty>
+              Voir les conditions de garantie
+              <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+          <a class="btn btn-dark" href="mailto:contact@tapone.fr?subject=Question%20TAP%20ONE">Nous contacter</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Questions fréquentes.</h2>
+          <p>Les réponses essentielles avant d’équiper votre commerce.</p>
+        </div>
+
+        <div class="faq-list stagger">
+          <details>
+            <summary>Faut-il télécharger une application ?<span class="faq-chev"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p>Non, aucune application. Le client approche son téléphone, une notification s’affiche, il clique et arrive directement sur votre page d’avis Google.</p>
+          </details>
+          <details>
+            <summary>Est-ce compatible avec iPhone et Android ?<span class="faq-chev"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p>Oui, avec la quasi-totalité des iPhone et Android récents équipés du NFC. Il est souvent activé par défaut, sinon un réglage suffit.</p>
+          </details>
+          <details>
+            <summary>Y a-t-il un abonnement ?<span class="faq-chev"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p>Aucun. Vous achetez votre carte une seule fois, elle est à vous, sans frais récurrents.</p>
+          </details>
+          <details>
+            <summary>La carte a-t-elle besoin d’une batterie ?<span class="faq-chev"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p>Non. La technologie NFC ne demande aucune alimentation : la carte fonctionne dès réception, sans entretien.</p>
+          </details>
+          <details>
+            <summary>Où placer TAP ONE ?<span class="faq-chev"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p>Près de la caisse, du comptoir ou de l’accueil : là où l’échange avec le client se termine naturellement.</p>
+          </details>
+          <details>
+            <summary>Puis-je utiliser plusieurs cartes pour le même établissement ?<span class="faq-chev"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p>Oui, c’est même conseillé pour multiplier les points de contact. C’est tout l’intérêt du pack Duo.</p>
+          </details>
+          <details>
+            <summary>Que couvre la garantie ?<span class="faq-chev"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p>Les défauts de fabrication ou de fonctionnement pendant 1 an. <button type="button" class="link-quiet" style="margin-top:6px" data-open-warranty>Voir les conditions de garantie</button></p>
+          </details>
+          <details>
+            <summary>TAP ONE garantit-il des avis 5 étoiles ?<span class="faq-chev"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p>Non. On ne crée pas les avis et on ne choisit pas la note à la place du client : chacun reste libre de son expérience.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="wrap">
+        <h2>Un geste simple pour faciliter vos avis Google.</h2>
+        <p>Découvrez TAP ONE, son fonctionnement et les deux formats proposés.</p>
+        <a class="btn btn-dark" href="mailto:contact@tapone.fr?subject=Renseignement%20TAP%20ONE">Nous contacter</a>
+      </div>
+    </section>
+    </div>
+  </main>
+
+  <footer class="pc-scale-wrap">
+    <div class="wrap footer-row">
+      <div>© 2026 TAP ONE — Strasbourg</div>
+      <div><a href="mailto:contact@tapone.fr">contact@tapone.fr</a></div>
+    </div>
+  </footer>
+
+
+  <dialog class="warranty-modal" id="warrantyModal">
+    <div class="warranty-modal-inner">
+      <h3>Conditions de garantie</h3>
+      <p>La garantie TAP ONE d’une durée d’un an couvre les défauts de fabrication et de fonctionnement de la carte NFC dans des conditions d’usage normal.</p>
+      <p>Elle ne couvre pas la casse accidentelle, un usage abusif ou non conforme, ni l’usure liée à une mauvaise utilisation.</p>
+      <p>Pour toute demande, contactez-nous avec votre preuve d’achat : nous examinons chaque situation et proposons, si la garantie s’applique, un remplacement de la carte.</p>
+      <button type="button" class="btn btn-dark warranty-close" data-close-warranty>Fermer</button>
+    </div>
+  </dialog>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Fenêtre "Conditions de garantie" : indépendante des animations,
+    // doit fonctionner même si les animations sont désactivées.
+    const warrantyModal = document.getElementById("warrantyModal");
+    if (warrantyModal) {
+      document.querySelectorAll("[data-open-warranty]").forEach((el) => {
+        el.addEventListener("click", () => warrantyModal.showModal());
+      });
+      warrantyModal.querySelectorAll("[data-close-warranty]").forEach((el) => {
+        el.addEventListener("click", () => warrantyModal.close());
+      });
+      warrantyModal.addEventListener("click", (e) => {
+        const rect = warrantyModal.getBoundingClientRect();
+        const inside = e.clientX >= rect.left && e.clientX <= rect.right
+          && e.clientY >= rect.top && e.clientY <= rect.bottom;
+        if (!inside) warrantyModal.close();
+      });
+    }
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!reduceMotion) {
+      gsap.from(".hero-copy > *", {
+        y: 28,
+        opacity: 0,
+        duration: .7,
+        stagger: .1,
+        ease: "power2.out"
+      });
+
+      gsap.from(".card-photo", {
+        y: 30,
+        opacity: 0,
+        rotateY: -6,
+        duration: .9,
+        ease: "power2.out",
+        transformPerspective: 1200
+      });
+
+      const starEls = gsap.utils.toArray(".phone .stars span");
+
+      function resetPhoneStars() {
+        starEls.forEach(star => star.classList.remove("is-on"));
+      }
+
+      function lightPhoneStars() {
+        resetPhoneStars();
+        starEls.forEach((star, index) => {
+          gsap.delayedCall(index * 0.22, () => star.classList.add("is-on"));
+        });
+      }
+
+      // Quand le téléphone est absent, la carte oscille doucement.
+      // Deux tweens à des durées légèrement différentes (au lieu d'un seul)
+      // pour un mouvement plus organique, moins "métronome".
+      const cardFloatY = gsap.to(".card-photo", {
+        rotateY: 7,
+        y: -4,
+        duration: 4.8,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        transformPerspective: 1200
+      });
+      const cardFloatX = gsap.to(".card-photo", {
+        rotateX: 2.2,
+        duration: 6.3,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut"
+      });
+      const cardFloat = {
+        pause: () => { cardFloatY.pause(); cardFloatX.pause(); },
+        resume: () => { cardFloatY.resume(); cardFloatX.resume(); }
+      };
+
+      // Léger tilt au survol (souris fine uniquement) : la carte suit le curseur.
+      const stage = document.querySelector(".visual-stage");
+      const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+      if (stage && canHover) {
+        const setRotateY = gsap.quickTo(".card-photo", "rotateY", { duration: .5, ease: "power2.out" });
+        const setRotateX = gsap.quickTo(".card-photo", "rotateX", { duration: .5, ease: "power2.out" });
+        let hovering = false;
+        stage.addEventListener("mouseenter", () => {
+          hovering = true;
+          cardFloat.pause();
+        });
+        stage.addEventListener("mousemove", (e) => {
+          const rect = stage.getBoundingClientRect();
+          const px = (e.clientX - rect.left) / rect.width - .5;
+          const py = (e.clientY - rect.top) / rect.height - .5;
+          setRotateY(px * 12);
+          setRotateX(py * -8);
+        });
+        stage.addEventListener("mouseleave", () => {
+          hovering = false;
+          setRotateY(0);
+          setRotateX(0);
+          gsap.delayedCall(.5, () => { if (!hovering) cardFloat.resume(); });
+        });
+      }
+
+      const demo = gsap.timeline({
+        delay: 3.2,
+        repeat: -1,
+        repeatDelay: 22,
+        onStart: () => cardFloat.pause(),
+        onRepeat: () => {
+          cardFloat.pause();
+          resetPhoneStars();
+        }
+      });
+
+      demo
+        .set(".phone", { opacity: 0, x: -130, y: 165, rotate: -14, scale: .88 })
+        .to(".phone", {
+          opacity: 1,
+          x: -25,
+          y: 92,
+          rotate: -10,
+          scale: .92,
+          duration: .8,
+          ease: "power2.out"
+        })
+        .to(".phone", {
+          x: 105,
+          y: -64,
+          rotate: -4,
+          scale: .96,
+          duration: 1.05,
+          ease: "power2.inOut"
+        })
+        .to(".tap-pulse", { opacity: 1, scale: 1.15, duration: .2 }, "-=.3")
+        .to(".tap-pulse", { opacity: 0, scale: 2, duration: .6 })
+        .call(lightPhoneStars)
+        .to(".publish", { scale: 1.04, duration: .18, yoyo: true, repeat: 1 }, "+=.95")
+        .to(".phone", { opacity: 1, duration: 3.2 })
+        .to(".phone", {
+          opacity: 0,
+          x: 255,
+          y: -120,
+          rotate: 8,
+          duration: .8,
+          ease: "power2.in"
+        })
+        .call(() => {
+          resetPhoneStars();
+          cardFloat.resume();
+        });
+
+      document.querySelectorAll("section:not(.hero)").forEach((section) => {
+        gsap.from(section, {
+          y: 30,
+          opacity: 0,
+          duration: .6,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 84%",
+            once: true
+          }
+        });
+      });
+
+      document.querySelectorAll(".stagger").forEach((group) => {
+        gsap.from(group.children, {
+          y: 24,
+          opacity: 0,
+          duration: .55,
+          stagger: .1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: group,
+            start: "top 84%",
+            once: true
+          }
+        });
+      });
+
+      const stepStars = gsap.utils.toArray(".step-stars span");
+      ScrollTrigger.create({
+        trigger: ".step-stars",
+        start: "top 90%",
+        once: true,
+        onEnter: () => {
+          stepStars.forEach((star, index) => {
+            gsap.delayedCall(index * .16, () => star.classList.add("is-on"));
+          });
+        }
+      });
+    }
+  </script>
+</body>
+</html>
